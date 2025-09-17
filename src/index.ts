@@ -20,6 +20,7 @@ import { faviconMiddleware } from "./lib/middlewares/favicon-middleware";
 import { HTTP } from "./lib/http/status-codes";
 import { APISchema } from "./lib/schemas/api-schemas";
 import { HONO_RESPONSE } from "./lib/utils";
+import { mailerController } from "./modules/mailer/controller";
 
 const createApp = () => {
   const app = createRouter().basePath("/api");
@@ -40,12 +41,6 @@ const createApp = () => {
 export const app = createApp();
 configureOpenAPI(app);
 
-const controllers: any = [];
-
-for (const controller of controllers) {
-  app.route("/", controller);
-}
-
 app.openapi(
   {
     path: "/",
@@ -60,6 +55,12 @@ app.openapi(
     return c.json(HONO_RESPONSE({ message: "Yollo Bozo" }), HTTP.OK);
   }
 );
+
+const controllers: any = [mailerController];
+
+for (const controller of controllers) {
+  app.route("/", controller);
+}
 
 serve({
   port: env.PORT,
