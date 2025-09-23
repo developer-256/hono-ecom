@@ -48,7 +48,7 @@ export const SendEmailSchema = z
     path: ["html", "text"],
   });
 
-export const POST_DTO = createRoute({
+export const POST_Route = createRoute({
   path: "/mailer/send",
   method: "post",
   tags: moduleTags.mailer,
@@ -70,7 +70,7 @@ export const POST_DTO = createRoute({
   },
 });
 
-export const POST_Handler: RouteHandler<typeof POST_DTO> = async (c) => {
+export const POST_Handler: RouteHandler<typeof POST_Route> = async (c) => {
   try {
     const emailData = c.req.valid("json");
 

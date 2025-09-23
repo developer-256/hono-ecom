@@ -21,13 +21,29 @@ import { HTTP } from "./lib/http/status-codes";
 import { APISchema } from "./lib/schemas/api-schemas";
 import { HONO_RESPONSE } from "./lib/utils";
 import { mailerController } from "./modules/mailer/controller";
+import { userController } from "./modules/user/controller";
+import { authController } from "./modules/auth/controller";
+import { auth } from "./lib/auth";
 
 const createApp = () => {
   const app = createRouter().basePath("/api");
 
   app.use(requestId()).use(faviconMiddleware("📝"));
   app.use(logger(HonoLogger));
-  app.use("/*", cors());
+  app.use(
+    "/*",
+    cors({
+      origin:
+        env.NODE_ENV === "development"
+          ? ["http://localhost:3000", "http://localhost:9999"]
+          : [env.BETTER_AUTH_URL],
+      credentials: true,
+      allowHeaders: ["Content-Type", "Authorization"],
+      allowMethods: ["POST", "GET", "OPTIONS"],
+      exposeHeaders: ["Content-Length"],
+      maxAge: 600,
+    })
+  );
 
   // Sentry middleware for request tracking
   app.use("*", sentryMiddleware);
@@ -40,6 +56,11 @@ const createApp = () => {
 
 export const app = createApp();
 configureOpenAPI(app);
+
+// Mount Better Auth handler
+app.on(["POST", "GET"], "/api/auth/*", (c) => {
+  return auth.handler(c.req.raw);
+});
 
 app.openapi(
   {
@@ -56,7 +77,7 @@ app.openapi(
   }
 );
 
-const controllers: any = [mailerController];
+const controllers: any = [mailerController, userController, authController];
 
 for (const controller of controllers) {
   app.route("/", controller);

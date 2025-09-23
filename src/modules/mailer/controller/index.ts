@@ -1,4 +1,7 @@
 import { createRouter } from "@/lib/core/create-router";
-import { POST_DTO, POST_Handler } from "../routes/POST";
+import { POST_Route, POST_Handler } from "../routes/POST";
 
-export const mailerController = createRouter().openapi(POST_DTO, POST_Handler);
+export const mailerController = createRouter().openapi(
+  POST_Route,
+  POST_Handler
+);

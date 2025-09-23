@@ -12,6 +12,12 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string(),
   RESEND_API_KEY: z.string().nonempty(),
 
+  // Better Auth Configuration
+  BETTER_AUTH_SECRET: z
+    .string()
+    .min(32, "Better Auth secret must be at least 32 characters"),
+  BETTER_AUTH_URL: z.url().default("http://localhost:9999"),
+
   // Sentry Configuration
   SENTRY_ENABLED: z.coerce.boolean().default(false),
   SENTRY_DSN: z.string().optional(),
