@@ -1,6 +1,6 @@
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
-import { auth } from "@/lib/auth";
+import { auth } from "@/modules/auth/service";
 import { HTTP } from "@/lib/http/status-codes";
 
 // Types for Better Auth session and user data

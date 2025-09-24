@@ -18,13 +18,23 @@ const EnvSchema = z.object({
     .min(32, "Better Auth secret must be at least 32 characters"),
   BETTER_AUTH_URL: z.url().default("http://localhost:9999"),
 
+  // Google OAuth Configuration
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+
   // Sentry Configuration
-  SENTRY_ENABLED: z.coerce.boolean().default(false),
+  SENTRY_ENABLED: z
+    .string()
+    .default("false")
+    .transform((val) => val === "true"),
   SENTRY_DSN: z.string().optional(),
   SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
   // NOTE: SENTRY_PROFILES_SAMPLE_RATE removed due to Bun compatibility issues
   // The @sentry/profiling-node package uses libuv functions not supported by Bun
-  SENTRY_ENABLE_LOGS: z.coerce.boolean().default(true),
+  SENTRY_ENABLE_LOGS: z
+    .string()
+    .default("true")
+    .transform((val) => val === "true"),
 });
 
 export type env = z.infer<typeof EnvSchema>;

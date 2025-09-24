@@ -6,6 +6,7 @@ import { HONO_RESPONSE, HONO_ERROR } from "@/lib/utils";
 import {
   authMiddleware,
   optionalAuthMiddleware,
+  AuthUser,
 } from "@/lib/middlewares/auth.middleware";
 
 // Get user profile route
@@ -24,17 +25,19 @@ export const GET_Profile_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z.object({
-              user: z.object({
-                id: z.string(),
-                name: z.string(),
-                email: z.string(),
-                emailVerified: z.boolean(),
-                image: z.string().optional(),
-                createdAt: z.string(),
-                updatedAt: z.string(),
-              }),
-            }),
+            data: z
+              .object({
+                user: z.object({
+                  id: z.string(),
+                  name: z.string(),
+                  email: z.string(),
+                  emailVerified: z.boolean(),
+                  image: z.string().optional(),
+                  createdAt: z.string(),
+                  updatedAt: z.string(),
+                }),
+              })
+              .optional(),
           }),
         },
       },
@@ -48,13 +51,21 @@ export const GET_Profile_Handler: RouteHandler<
   typeof GET_Profile_Route
 > = async (c) => {
   try {
-    const user = c.get("user");
+    const user = c.get("user") as AuthUser;
 
     return c.json(
       HONO_RESPONSE({
         message: "Profile retrieved successfully",
         data: {
-          user,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            emailVerified: user.emailVerified,
+            image: user.image || undefined,
+            createdAt: user.createdAt.toISOString(),
+            updatedAt: user.updatedAt.toISOString(),
+          },
         },
       }),
       HTTP.OK
@@ -105,17 +116,19 @@ export const PATCH_Profile_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z.object({
-              user: z.object({
-                id: z.string(),
-                name: z.string(),
-                email: z.string(),
-                emailVerified: z.boolean(),
-                image: z.string().optional(),
-                createdAt: z.string(),
-                updatedAt: z.string(),
-              }),
-            }),
+            data: z
+              .object({
+                user: z.object({
+                  id: z.string(),
+                  name: z.string(),
+                  email: z.string(),
+                  emailVerified: z.boolean(),
+                  image: z.string().optional(),
+                  createdAt: z.string(),
+                  updatedAt: z.string(),
+                }),
+              })
+              .optional(),
           }),
         },
       },
@@ -132,18 +145,15 @@ export const PATCH_Profile_Handler: RouteHandler<
 > = async (c) => {
   try {
     const updateData = c.req.valid("json");
-    const user = c.get("user");
+    const user = c.get("user") as AuthUser;
 
-    // Import auth dynamically for better performance
-    const { auth } = await import("@/lib/auth");
+    // Import UserService for direct database updates
+    const UserService = await import("../service");
 
-    const updatedUser = await auth.api.updateUser({
-      headers: c.req.raw.headers,
-      body: {
-        ...updateData,
-        userId: user.id,
-      },
-    });
+    const updatedUser = await UserService.default.updateUser(
+      user.id,
+      updateData
+    );
 
     if (!updatedUser) {
       return c.json(
@@ -158,7 +168,15 @@ export const PATCH_Profile_Handler: RouteHandler<
       HONO_RESPONSE({
         message: "Profile updated successfully",
         data: {
-          user: updatedUser,
+          user: {
+            id: updatedUser.id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            emailVerified: updatedUser.emailVerified,
+            image: updatedUser.image || undefined,
+            createdAt: updatedUser.createdAt.toISOString(),
+            updatedAt: updatedUser.updatedAt.toISOString(),
+          },
         },
       }),
       HTTP.OK

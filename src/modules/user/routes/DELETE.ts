@@ -17,4 +17,3 @@ export const DELETE_Route = createRoute({
 export const DELETE_Handler: RouteHandler<typeof DELETE_Route> = async (c) => {
   return c.json(HONO_RESPONSE(), HTTP.OK);
 };
-

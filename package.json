@@ -3,8 +3,8 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
-    "dev": "bun run --hot src/index.ts",
-    "build": "bun build ./src/index.ts --outdir ./dist --target bun",
+    "dev": "bun run --hot src/main.ts",
+    "build": "bun build ./src/main.ts --outdir ./dist --target bun",
     "start": "bun run dist/index.js",
     "biome:format": "npx @biomejs/biome format --write ./src",
     "db:generate": "drizzle-kit generate",

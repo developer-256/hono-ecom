@@ -8,7 +8,7 @@ import {
   requireAdmin,
   requireSuperAdmin,
 } from "@/lib/middlewares/auth.middleware";
-import { auth } from "@/lib/auth";
+import { auth } from "@/modules/auth/service";
 
 // Get all users (admin only)
 export const GET_Users_Route = createRoute({
