@@ -2,7 +2,6 @@
  * HTTP response utility functions for standardized API responses
  */
 
-import { Context } from "hono";
 import { HTTP, HTTP_STATUS_PHRASE } from "../http/status-codes";
 
 /**
@@ -26,18 +25,6 @@ export interface ErrorResponse {
 }
 
 /**
- * Standard success response structure following OpenAPI specification
- */
-export interface SuccessResponse<T = any> {
-  success: true;
-  message: string;
-  statusCode: HTTPStatusValue;
-  data?: T;
-  timestamp?: string;
-  requestId?: string;
-}
-
-/**
  * Options for error response creation
  */
 interface ErrorOptions {
@@ -47,16 +34,16 @@ interface ErrorOptions {
   requestId?: string;
 }
 
-/**
- * Options for success response creation
- */
-interface ResponseOptions<T = any> {
-  data?: T;
-  message?: string;
-  statusCode?: HTTPStatusKey;
-  timestamp?: boolean;
-  requestId?: string;
-}
+// /**
+//  * Standard success response structure following OpenAPI specification
+//  */
+// export type SuccessResponse<T = void> = {
+//   success: true;
+//   message: string;
+//   statusCode: HTTPStatusValue;
+//   timestamp?: string;
+//   requestId?: string;
+// } & (T extends void ? {} : { data: T });
 
 /**
  * Creates a standardized error response following the OpenAPI error schema.
@@ -128,11 +115,43 @@ export function HONO_ERROR(
 }
 
 /**
+ * Options for success response creation
+ */
+interface ResponseOptions<T = any> {
+  data?: T;
+  message?: string;
+  statusCode?: HTTPStatusKey;
+  timestamp?: boolean;
+  requestId?: string;
+}
+
+/**
+ * Base response shared across all success responses
+ */
+interface BaseResponse {
+  success: true;
+  message: string;
+  statusCode: HTTPStatusValue;
+  timestamp?: string;
+  requestId?: string;
+}
+
+/**
+ * Success response with data
+ */
+export type SuccessResponse<T> = BaseResponse & { data: T };
+
+/**
+ * Success response without data
+ */
+export type SuccessResponseNoData = BaseResponse & { data?: never };
+
+/**
  * Creates a standardized success response following the OpenAPI response schema.
  * Supports flexible data payloads and optional metadata for comprehensive responses.
  *
  * @param options - Configuration object
- * @param options.data - Optional response data (any type)
+ * @param options.data - Response data (required when provided)
  * @param options.message - Optional success message (defaults based on status code)
  * @param options.statusCode - Optional HTTP status code key (defaults to "OK")
  * @param options.timestamp - Whether to include timestamp (default: true)
@@ -140,7 +159,7 @@ export function HONO_ERROR(
  * @returns Standardized success response object
  *
  * @example
- * // Simple success
+ * // Simple success without data
  * HONO_RESPONSE()
  *
  * // Success with data
@@ -162,9 +181,21 @@ export function HONO_ERROR(
  * // No content response
  * HONO_RESPONSE({ statusCode: "NO_CONTENT" })
  */
-export function HONO_RESPONSE<T = any>(
+
+// Overload for when data is provided
+export function HONO_RESPONSE<T>(
+  options: ResponseOptions<T> & { data: T }
+): SuccessResponse<T>;
+
+// Overload for when no data is provided
+export function HONO_RESPONSE(
+  options?: Omit<ResponseOptions, "data">
+): SuccessResponseNoData;
+
+// Implementation
+export function HONO_RESPONSE<T>(
   options: ResponseOptions<T> = {}
-): SuccessResponse<T> {
+): SuccessResponse<T> | SuccessResponseNoData {
   const {
     data,
     message,
@@ -188,27 +219,16 @@ export function HONO_RESPONSE<T = any>(
     defaultMessages[statusCode] ||
     "Operation completed successfully";
 
-  const response: SuccessResponse<T> = {
+  const base: BaseResponse = {
     success: true,
     message: responseMessage,
     statusCode: statusValue,
   };
 
-  // Only include data field if it's provided and not NO_CONTENT
-  if (data !== undefined && statusCode !== "NO_CONTENT") {
-    response.data = data;
-  }
+  if (timestamp) base.timestamp = new Date().toISOString();
+  if (requestId) base.requestId = requestId;
 
-  // Add optional fields
-  if (timestamp) {
-    response.timestamp = new Date().toISOString();
-  }
-
-  if (requestId) {
-    response.requestId = requestId;
-  }
-
-  return response;
+  return data !== undefined ? { ...base, data } : base;
 }
 
 /**
@@ -257,35 +277,3 @@ export function HONO_PAGINATED_RESPONSE<T>(
     message: options.message || `Retrieved ${data.length} items`,
   });
 }
-
-/**
- * Type guard to check if response is an error
- *
- * @param response - Response to check
- * @returns True if response is an error
- */
-export const isErrorResponse = (response: any): response is ErrorResponse => {
-  return response && response.success === false;
-};
-
-/**
- * Type guard to check if response is successful
- *
- * @param response - Response to check
- * @returns True if response is successful
- */
-export const isSuccessResponse = <T = any>(
-  response: any
-): response is SuccessResponse<T> => {
-  return response && response.success === true;
-};
-
-/**
- * Common HTTP status codes for quick access
- */
-export const HTTP_STATUS = HTTP;
-
-/**
- * HTTP status phrases for quick access
- */
-export const STATUS_PHRASES = HTTP_STATUS_PHRASE;

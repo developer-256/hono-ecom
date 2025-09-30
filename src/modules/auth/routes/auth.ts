@@ -64,16 +64,14 @@ export const POST_SignUp_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                user: z.object({
-                  id: z.string(),
-                  email: z.string(),
-                  name: z.string(),
-                  emailVerified: z.boolean(),
-                }),
-              })
-              .optional(),
+            data: z.object({
+              user: z.object({
+                id: z.string(),
+                email: z.string(),
+                name: z.string(),
+                emailVerified: z.boolean(),
+              }),
+            }),
           }),
         },
       },
@@ -178,22 +176,20 @@ export const POST_SignIn_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                user: z.object({
-                  id: z.string(),
-                  email: z.string(),
-                  name: z.string(),
-                  emailVerified: z.boolean(),
-                  role: z.string(),
-                }),
-                session: z.object({
-                  id: z.string(),
-                  userId: z.string(),
-                  expiresAt: z.string(),
-                }),
-              })
-              .optional(),
+            data: z.object({
+              user: z.object({
+                id: z.string(),
+                email: z.string(),
+                name: z.string(),
+                emailVerified: z.boolean(),
+                role: z.string(),
+              }),
+              session: z.object({
+                id: z.string(),
+                userId: z.string(),
+                expiresAt: z.string(),
+              }),
+            }),
           }),
         },
       },

@@ -49,20 +49,18 @@ export const GET_Profile_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                user: z.object({
-                  id: z.string(),
-                  name: z.string(),
-                  email: z.string(),
-                  emailVerified: z.boolean(),
-                  image: z.string().nullable().optional(),
-                  role: z.string(),
-                  createdAt: z.string(),
-                  updatedAt: z.string(),
-                }),
-              })
-              .optional(),
+            data: z.object({
+              user: z.object({
+                id: z.string(),
+                name: z.string(),
+                email: z.string(),
+                emailVerified: z.boolean(),
+                image: z.string().nullable().optional(),
+                role: z.string(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+            }),
           }),
         },
       },
@@ -136,20 +134,18 @@ export const PATCH_Profile_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                user: z.object({
-                  id: z.string(),
-                  name: z.string(),
-                  email: z.string(),
-                  emailVerified: z.boolean(),
-                  image: z.string().nullable().optional(),
-                  role: z.string(),
-                  createdAt: z.string(),
-                  updatedAt: z.string(),
-                }),
-              })
-              .optional(),
+            data: z.object({
+              user: z.object({
+                id: z.string(),
+                name: z.string(),
+                email: z.string(),
+                emailVerified: z.boolean(),
+                image: z.string().nullable().optional(),
+                role: z.string(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+            }),
           }),
         },
       },
@@ -296,28 +292,26 @@ export const GET_Users_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                users: z.array(
-                  z.object({
-                    id: z.string(),
-                    name: z.string(),
-                    email: z.string(),
-                    emailVerified: z.boolean(),
-                    image: z.string().nullable().optional(),
-                    role: z.string(),
-                    createdAt: z.string(),
-                    updatedAt: z.string(),
-                  })
-                ),
-                pagination: z.object({
-                  page: z.number(),
-                  limit: z.number(),
-                  total: z.number(),
-                  totalPages: z.number(),
-                }),
-              })
-              .optional(),
+            data: z.object({
+              users: z.array(
+                z.object({
+                  id: z.string(),
+                  name: z.string(),
+                  email: z.string(),
+                  emailVerified: z.boolean(),
+                  image: z.string().nullable().optional(),
+                  role: z.string(),
+                  createdAt: z.string(),
+                  updatedAt: z.string(),
+                })
+              ),
+              pagination: z.object({
+                page: z.number(),
+                limit: z.number(),
+                total: z.number(),
+                totalPages: z.number(),
+              }),
+            }),
           }),
         },
       },
@@ -404,20 +398,18 @@ export const GET_UserById_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                user: z.object({
-                  id: z.string(),
-                  name: z.string(),
-                  email: z.string(),
-                  emailVerified: z.boolean(),
-                  image: z.string().nullable().optional(),
-                  role: z.string(),
-                  createdAt: z.string(),
-                  updatedAt: z.string(),
-                }),
-              })
-              .optional(),
+            data: z.object({
+              user: z.object({
+                id: z.string(),
+                name: z.string(),
+                email: z.string(),
+                emailVerified: z.boolean(),
+                image: z.string().nullable().optional(),
+                role: z.string(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+            }),
           }),
         },
       },
@@ -507,20 +499,18 @@ export const PATCH_User_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                user: z.object({
-                  id: z.string(),
-                  name: z.string(),
-                  email: z.string(),
-                  emailVerified: z.boolean(),
-                  image: z.string().nullable().optional(),
-                  role: z.string(),
-                  createdAt: z.string(),
-                  updatedAt: z.string(),
-                }),
-              })
-              .optional(),
+            data: z.object({
+              user: z.object({
+                id: z.string(),
+                name: z.string(),
+                email: z.string(),
+                emailVerified: z.boolean(),
+                image: z.string().nullable().optional(),
+                role: z.string(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+            }),
           }),
         },
       },
@@ -703,16 +693,14 @@ export const GET_UserStats_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                stats: z.object({
-                  total: z.number(),
-                  verified: z.number(),
-                  unverified: z.number(),
-                  byRole: z.record(z.string(), z.number()),
-                }),
-              })
-              .optional(),
+            data: z.object({
+              stats: z.object({
+                total: z.number(),
+                verified: z.number(),
+                unverified: z.number(),
+                byRole: z.record(z.string(), z.number()),
+              }),
+            }),
           }),
         },
       },

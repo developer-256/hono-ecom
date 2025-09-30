@@ -77,7 +77,7 @@ app.openapi(
   }
 );
 
-const controllers: any = [mailerController, userController, authController];
+const controllers = [mailerController, userController, authController];
 
 for (const controller of controllers) {
   app.route("/", controller);

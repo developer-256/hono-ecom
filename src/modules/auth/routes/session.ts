@@ -24,25 +24,23 @@ export const GET_Session_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                user: z.object({
-                  id: z.string(),
-                  name: z.string(),
-                  email: z.string(),
-                  emailVerified: z.boolean(),
-                  image: z.string().optional(),
-                  createdAt: z.string(),
-                  updatedAt: z.string(),
-                }),
-                session: z.object({
-                  id: z.string(),
-                  userId: z.string(),
-                  expiresAt: z.string(),
-                  activeOrganizationId: z.string().optional(),
-                }),
-              })
-              .optional(),
+            data: z.object({
+              user: z.object({
+                id: z.string(),
+                name: z.string(),
+                email: z.string(),
+                emailVerified: z.boolean(),
+                image: z.string().optional(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+              session: z.object({
+                id: z.string(),
+                userId: z.string(),
+                expiresAt: z.string(),
+                activeOrganizationId: z.string().optional(),
+              }),
+            }),
           }),
         },
       },

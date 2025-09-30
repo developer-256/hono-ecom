@@ -25,19 +25,17 @@ export const GET_Profile_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                user: z.object({
-                  id: z.string(),
-                  name: z.string(),
-                  email: z.string(),
-                  emailVerified: z.boolean(),
-                  image: z.string().optional(),
-                  createdAt: z.string(),
-                  updatedAt: z.string(),
-                }),
-              })
-              .optional(),
+            data: z.object({
+              user: z.object({
+                id: z.string(),
+                name: z.string(),
+                email: z.string(),
+                emailVerified: z.boolean(),
+                image: z.string().optional(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+            }),
           }),
         },
       },
@@ -116,19 +114,17 @@ export const PATCH_Profile_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                user: z.object({
-                  id: z.string(),
-                  name: z.string(),
-                  email: z.string(),
-                  emailVerified: z.boolean(),
-                  image: z.string().optional(),
-                  createdAt: z.string(),
-                  updatedAt: z.string(),
-                }),
-              })
-              .optional(),
+            data: z.object({
+              user: z.object({
+                id: z.string(),
+                name: z.string(),
+                email: z.string(),
+                emailVerified: z.boolean(),
+                image: z.string().optional(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+            }),
           }),
         },
       },

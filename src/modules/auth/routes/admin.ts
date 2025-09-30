@@ -26,26 +26,24 @@ export const GET_Users_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                users: z.array(
-                  z.object({
-                    id: z.string(),
-                    name: z.string(),
-                    email: z.string(),
-                    role: z.enum([
-                      "super-admin",
-                      "admin",
-                      "sales",
-                      "writer",
-                      "user",
-                    ]),
-                    emailVerified: z.boolean(),
-                    createdAt: z.string(),
-                  })
-                ),
-              })
-              .optional(),
+            data: z.object({
+              users: z.array(
+                z.object({
+                  id: z.string(),
+                  name: z.string(),
+                  email: z.string(),
+                  role: z.enum([
+                    "super-admin",
+                    "admin",
+                    "sales",
+                    "writer",
+                    "user",
+                  ]),
+                  emailVerified: z.boolean(),
+                  createdAt: z.string(),
+                })
+              ),
+            }),
           }),
         },
       },
@@ -127,24 +125,22 @@ export const PATCH_UserRole_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                user: z.object({
-                  id: z.string(),
-                  name: z.string(),
-                  email: z.string(),
-                  role: z.enum([
-                    "super-admin",
-                    "admin",
-                    "sales",
-                    "writer",
-                    "user",
-                  ]),
-                  emailVerified: z.boolean(),
-                  createdAt: z.string(),
-                }),
-              })
-              .optional(),
+            data: z.object({
+              user: z.object({
+                id: z.string(),
+                name: z.string(),
+                email: z.string(),
+                role: z.enum([
+                  "super-admin",
+                  "admin",
+                  "sales",
+                  "writer",
+                  "user",
+                ]),
+                emailVerified: z.boolean(),
+                createdAt: z.string(),
+              }),
+            }),
           }),
         },
       },
@@ -225,23 +221,15 @@ export const GET_MyRole_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                role: z.enum([
-                  "super-admin",
-                  "admin",
-                  "sales",
-                  "writer",
-                  "user",
-                ]),
-                permissions: z.object({
-                  canManageUsers: z.boolean(),
-                  canManageRoles: z.boolean(),
-                  canAccessSales: z.boolean(),
-                  canWrite: z.boolean(),
-                }),
-              })
-              .optional(),
+            data: z.object({
+              role: z.enum(["super-admin", "admin", "sales", "writer", "user"]),
+              permissions: z.object({
+                canManageUsers: z.boolean(),
+                canManageRoles: z.boolean(),
+                canAccessSales: z.boolean(),
+                canWrite: z.boolean(),
+              }),
+            }),
           }),
         },
       },

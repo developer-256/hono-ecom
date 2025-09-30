@@ -36,12 +36,10 @@ export const POST_CheckUser_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                exists: z.boolean(),
-                canRegister: z.boolean(),
-              })
-              .optional(),
+            data: z.object({
+              exists: z.boolean(),
+              canRegister: z.boolean(),
+            }),
           }),
         },
       },
@@ -109,17 +107,15 @@ export const GET_PublicUserInfo_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
-            data: z
-              .object({
-                user: z.object({
-                  id: z.string(),
-                  name: z.string(),
-                  emailVerified: z.boolean(),
-                  createdAt: z.string(),
-                  image: z.string().optional(),
-                }),
-              })
-              .optional(),
+            data: z.object({
+              user: z.object({
+                id: z.string(),
+                name: z.string(),
+                emailVerified: z.boolean(),
+                createdAt: z.string(),
+                image: z.string().optional(),
+              }),
+            }),
           }),
         },
       },
