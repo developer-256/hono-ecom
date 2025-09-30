@@ -68,18 +68,18 @@ export const auth = betterAuth({
       const { Resend } = await import("resend");
       const resend = new Resend(env.RESEND_API_KEY);
 
-      await resend.emails.send({
+      const { data: response, error } = await resend.emails.send({
         from: "noreply@yourapp.com", // Replace with your domain
         to: data.user.email,
         subject: "Verify your email address",
         html: `
-          <div>
-            <h2>Verify your email address</h2>
-            <p>Click the link below to verify your email address:</p>
-            <a href="${data.url}">Verify Email</a>
-            <p>If you didn't create an account, you can safely ignore this email.</p>
-          </div>
-        `,
+            <div>
+              <h2>Verify your email address</h2>
+              <p>Click the link below to verify your email address:</p>
+              <a href="${data.url}">Verify Email</a>
+              <p>If you didn't create an account, you can safely ignore this email.</p>
+            </div>
+          `,
       });
     },
   },

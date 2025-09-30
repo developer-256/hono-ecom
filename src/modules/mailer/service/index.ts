@@ -8,6 +8,7 @@ import {
   type PasswordResetEmailData,
   type OrderConfirmationEmailData,
 } from "../templates";
+import { HONO_LOGGER } from "@/lib/core/hono-logger";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -65,7 +66,7 @@ export const sendEmail = async (
     const { data, error } = await resend.emails.send(emailData);
 
     if (error) {
-      console.error("❌ Email sending failed:", error);
+      HONO_LOGGER.error("❌ Email sending error:", { error });
       return {
         success: false,
         error: error.message || "Failed to send email",
@@ -78,7 +79,8 @@ export const sendEmail = async (
       data,
     };
   } catch (error) {
-    console.error("❌ Email sending error:", error);
+    HONO_LOGGER.error("❌ Email sending error:", { error });
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",

@@ -87,7 +87,7 @@ const createLogEntry = (
  * app.use(logger(HonoLogger));
  * ```
  */
-export const HonoLogger = (message: string, ...rest: string[]) => {
+export const logger = (message: string, ...rest: string[]) => {
   console.log(
     `${COLORS.Dim}[${new Date().toUTCString()}]:${COLORS.Reset} ${message}`,
     `${rest.join(" ")}`
@@ -179,9 +179,10 @@ const hexToAnsi = (hex: string, isBg = false) => {
  * logger.sentry.setTag("feature", "checkout");
  * ```
  */
-export const logger = {
+export const HONO_LOGGER = {
   /**
-   * Log error messages with automatic Sentry integration
+   * Log error messages to console only
+   * Use HONO_LOGGER.sentry methods for explicit Sentry reporting
    *
    * @param message - The main error message
    * @param context - Optional structured context data
@@ -203,7 +204,7 @@ export const logger = {
   error: (message: string, context?: LogContext) => {
     const logEntry = createLogEntry("error", message, context);
 
-    // Console logging
+    // Console logging only - no automatic Sentry integration
     console.log(
       `${COLORS.Dim}[${logEntry.timestamp}]: ${logEntry.logId} -${
         COLORS.Reset
@@ -211,26 +212,10 @@ export const logger = {
         COLORS.Reset
       }`
     );
-
-    // Sentry logging
-    if (env.SENTRY_ENABLED && env.SENTRY_ENABLE_LOGS) {
-      Sentry.addBreadcrumb({
-        message: logEntry.message,
-        level: SENTRY_LEVELS.error,
-        category: "logger",
-        data: { logId: logEntry.logId, ...logEntry.context },
-      });
-      // For errors, also capture as exception for better visibility
-      Sentry.captureException(new Error(logEntry.message), {
-        tags: { source: "custom-logger", logId: logEntry.logId },
-        level: "error",
-        extra: logEntry.context,
-      });
-    }
   },
 
   /**
-   * Log debug messages (only sent to Sentry in development)
+   * Log debug messages to console only
    *
    * @param message - The main debug message
    * @param context - Optional structured context data
@@ -251,30 +236,16 @@ export const logger = {
   debug: (message: string, context?: LogContext) => {
     const logEntry = createLogEntry("debug", message, context);
 
-    // Console logging
+    // Console logging only - no automatic Sentry integration
     console.log(
       `${COLORS.Dim}[${logEntry.timestamp}]: -${COLORS.Reset}${COLORS.hex(
         "#da61e7ff"
       )} DEBUG - ${logEntry.fullMessage}${COLORS.Reset}`
     );
-
-    // Sentry logging (only in development for debug messages)
-    if (
-      env.SENTRY_ENABLED &&
-      env.SENTRY_ENABLE_LOGS &&
-      env.NODE_ENV === "development"
-    ) {
-      Sentry.addBreadcrumb({
-        message: logEntry.message,
-        level: SENTRY_LEVELS.debug,
-        category: "logger",
-        data: logEntry.context,
-      });
-    }
   },
 
   /**
-   * Log informational messages
+   * Log informational messages to console only
    *
    * @param message - The main info message
    * @param context - Optional structured context data
@@ -296,26 +267,17 @@ export const logger = {
   log: (message: string, context?: LogContext) => {
     const logEntry = createLogEntry("log", message, context);
 
-    // Console logging
+    // Console logging only - no automatic Sentry integration
     console.log(
       `${COLORS.Dim}[${logEntry.timestamp}]: -${COLORS.Reset}${COLORS.hex(
         "#22b872ff"
       )} LOG - ${logEntry.fullMessage}${COLORS.Reset}`
     );
-
-    // Sentry logging
-    if (env.SENTRY_ENABLED && env.SENTRY_ENABLE_LOGS) {
-      Sentry.addBreadcrumb({
-        message: logEntry.message,
-        level: SENTRY_LEVELS.log,
-        category: "logger",
-        data: logEntry.context,
-      });
-    }
   },
 
   /**
-   * Log warning messages with automatic Sentry integration
+   * Log warning messages to console only
+   * Use HONO_LOGGER.sentry methods for explicit Sentry reporting
    *
    * @param message - The main warning message
    * @param context - Optional structured context data
@@ -338,32 +300,16 @@ export const logger = {
   warn: (message: string, context?: LogContext) => {
     const logEntry = createLogEntry("warn", message, context);
 
-    // Console logging
+    // Console logging only - no automatic Sentry integration
     console.log(
       `${COLORS.Dim}[${logEntry.timestamp}]: ${logEntry.logId} -${
         COLORS.Reset
       }${COLORS.hex("#bb7339ff")} WARN - ${logEntry.fullMessage}${COLORS.Reset}`
     );
-
-    // Sentry logging
-    if (env.SENTRY_ENABLED && env.SENTRY_ENABLE_LOGS) {
-      Sentry.addBreadcrumb({
-        message: logEntry.message,
-        level: SENTRY_LEVELS.warn,
-        category: "logger",
-        data: { logId: logEntry.logId, ...logEntry.context },
-      });
-      // Capture warnings as messages for better visibility
-      Sentry.captureMessage(logEntry.message, {
-        level: "warning",
-        tags: { source: "custom-logger", logId: logEntry.logId },
-        extra: logEntry.context,
-      });
-    }
   },
 
   /**
-   * Log verbose messages (only sent to Sentry in development)
+   * Log verbose messages to console only
    *
    * @param message - The main verbose message
    * @param context - Optional structured context data
@@ -386,7 +332,7 @@ export const logger = {
   verbose: (message: string, context?: LogContext) => {
     const logEntry = createLogEntry("verbose", message, context);
 
-    // Console logging
+    // Console logging only - no automatic Sentry integration
     console.log(
       `${COLORS.Dim}[${logEntry.timestamp}]: ${logEntry.logId} -${
         COLORS.Reset
@@ -394,20 +340,6 @@ export const logger = {
         COLORS.Reset
       }`
     );
-
-    // Sentry logging (only in development for verbose messages)
-    if (
-      env.SENTRY_ENABLED &&
-      env.SENTRY_ENABLE_LOGS &&
-      env.NODE_ENV === "development"
-    ) {
-      Sentry.addBreadcrumb({
-        message: logEntry.message,
-        level: SENTRY_LEVELS.verbose,
-        category: "logger",
-        data: { logId: logEntry.logId, ...logEntry.context },
-      });
-    }
   },
 
   /**

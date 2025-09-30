@@ -7,6 +7,7 @@ import {
   INTERNAL_SERVER_ERROR,
   OK,
 } from "../http/status-codes";
+import { HONO_LOGGER } from "../core/hono-logger";
 
 export const onError: ErrorHandler = (err, c) => {
   const currentStatus =
@@ -16,6 +17,27 @@ export const onError: ErrorHandler = (err, c) => {
       ? (currentStatus as StatusCode)
       : INTERNAL_SERVER_ERROR;
   const curr_env = c.env?.NODE_ENV || env.NODE_ENV;
+
+  // Log error for debugging
+  HONO_LOGGER.error(`HTTP ${statusCode} Error: ${err.message}`, {
+    statusCode,
+    path: c.req.path,
+    method: c.req.method,
+    userAgent: c.req.header("user-agent"),
+    requestId: c.get("requestId"),
+  });
+
+  // Report serious errors to Sentry (500+ status codes)
+  if (statusCode >= 500) {
+    HONO_LOGGER.sentry.captureException(err, {
+      statusCode,
+      path: c.req.path,
+      method: c.req.method,
+      requestId: c.get("requestId"),
+      userAgent: c.req.header("user-agent"),
+    });
+  }
+
   return c.json(
     {
       message: err.message,

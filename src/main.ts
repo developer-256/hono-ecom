@@ -5,7 +5,7 @@ initializeSentry();
 import { createRouter } from "./lib/core/create-router";
 import { requestId } from "hono/request-id";
 import { logger } from "hono/logger";
-import { HonoLogger } from "./lib/core/hono-logger";
+import { logger as HonoLogger } from "./lib/core/hono-logger";
 import { cors } from "hono/cors";
 import { onError } from "./lib/middlewares/on-error.middleware";
 import {

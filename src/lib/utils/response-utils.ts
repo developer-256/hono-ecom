@@ -3,6 +3,7 @@
  */
 
 import { HTTP, HTTP_STATUS_PHRASE } from "../http/status-codes";
+import { HONO_LOGGER } from "../core/hono-logger";
 
 /**
  * Type definitions for better type safety
@@ -16,8 +17,8 @@ export type HTTPStatusValue = (typeof HTTP)[HTTPStatusKey];
 export interface ErrorResponse {
   success: false;
   error: {
-    name: string;
-    issues: Array<{ message: string; path?: string; code?: string }>;
+    message: string;
+    issues?: Array<{ message: string; path?: string; code?: string }>;
   };
   statusCode: HTTPStatusValue;
   timestamp?: string;
@@ -28,44 +29,36 @@ export interface ErrorResponse {
  * Options for error response creation
  */
 interface ErrorOptions {
-  name?: string;
+  message?: string;
   issues?: Array<{ message: string; path?: string; code?: string }>;
   timestamp?: boolean;
   requestId?: string;
 }
-
-// /**
-//  * Standard success response structure following OpenAPI specification
-//  */
-// export type SuccessResponse<T = void> = {
-//   success: true;
-//   message: string;
-//   statusCode: HTTPStatusValue;
-//   timestamp?: string;
-//   requestId?: string;
-// } & (T extends void ? {} : { data: T });
 
 /**
  * Creates a standardized error response following the OpenAPI error schema.
  * Supports multiple error messages and additional metadata for better debugging.
  *
  * @param statusCode - HTTP status code key from HTTP
- * @param message - Primary error message
+ * @param message - Primary error message (optional, will use generated message if not provided)
  * @param options - Optional configuration object
- * @param options.name - Optional error name (defaults to status code description)
- * @param options.issues - Array of error issues with optional path and code
+ * @param options.message - Optional custom message (overrides the message parameter)
+ * @param options.issues - Optional array of detailed error issues (Zod-compatible structure)
  * @param options.timestamp - Whether to include timestamp (default: true)
  * @param options.requestId - Optional request ID for tracing
  * @returns Standardized error response object
  *
  * @example
- * // Simple error
- * HONO_ERROR("BAD_REQUEST", "Request failed")
+ * // Simple error with message
+ * HONO_ERROR("BAD_REQUEST", "Invalid request data")
  *
- * // Error with custom name
- * HONO_ERROR("BAD_REQUEST", "Validation failed", { name: "ValidationError" })
+ * // Error without message (uses generated message)
+ * HONO_ERROR("UNPROCESSABLE_ENTITY")
  *
- * // Multiple validation errors
+ * // Error with custom message via options
+ * HONO_ERROR("BAD_REQUEST", undefined, { message: "Custom error message" })
+ *
+ * // Validation error with multiple issues (Zod-style)
  * HONO_ERROR("UNPROCESSABLE_ENTITY", "Validation failed", {
  *   issues: [
  *     { message: "Email is required", path: "email", code: "required" },
@@ -80,24 +73,46 @@ interface ErrorOptions {
  */
 export function HONO_ERROR(
   statusCode: HTTPStatusKey,
-  message: string,
+  message?: string,
   options: ErrorOptions = {}
 ): ErrorResponse {
   const statusValue = HTTP[statusCode];
-  const defaultName =
-    HTTP_STATUS_PHRASE[statusValue as keyof typeof HTTP_STATUS_PHRASE] ||
-    "Error";
 
-  const { name = defaultName, issues, timestamp = true, requestId } = options;
+  const {
+    message: optionsMessage,
+    issues,
+    timestamp = true,
+    requestId,
+  } = options;
 
-  // Use provided issues or create from message
-  const errorIssues = issues || [{ message }];
+  // Generate a generic message based on the status code
+  const generateErrorMessage = (statusCode: HTTPStatusKey): string => {
+    const messageMap: Partial<Record<HTTPStatusKey, string>> = {
+      BAD_REQUEST: "Invalid request parameters provided",
+      UNAUTHORIZED: "Authentication required",
+      FORBIDDEN: "Access denied",
+      NOT_FOUND: "Requested resource not found",
+      CONFLICT: "Resource conflict occurred",
+      UNPROCESSABLE_ENTITY: "Request validation failed",
+      INTERNAL_SERVER_ERROR: "An unexpected error occurred",
+      SERVICE_UNAVAILABLE: "Service temporarily unavailable",
+      TOO_MANY_REQUESTS: "Too many requests",
+      METHOD_NOT_ALLOWED: "Method not allowed",
+      UNSUPPORTED_MEDIA_TYPE: "Unsupported media type",
+    };
+
+    return messageMap[statusCode] || "An error occurred";
+  };
+
+  // Priority: options.message > message parameter > generated message
+  const finalMessage =
+    optionsMessage || message || generateErrorMessage(statusCode);
 
   const response: ErrorResponse = {
     success: false,
     error: {
-      name,
-      issues: errorIssues,
+      message: finalMessage,
+      ...(issues && issues.length > 0 && { issues }),
     },
     statusCode: statusValue,
   };
@@ -110,6 +125,9 @@ export function HONO_ERROR(
   if (requestId) {
     response.requestId = requestId;
   }
+
+  // Log error information to console for debugging
+  HONO_LOGGER.error(`HTTP ${statusValue} Error: ${finalMessage}`);
 
   return response;
 }

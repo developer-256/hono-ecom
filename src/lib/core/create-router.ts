@@ -31,18 +31,16 @@ const createDefaultHook = (
       const issues =
         includeErrorDetails && "error" in result && result.error?.issues
           ? result.error.issues.map((issue) => ({
-              message: issue.message,
               path: issue.path.join(".") || undefined,
+              message: issue.message,
               code: issue.code || undefined,
             }))
           : [{ message: "Validation failed" }];
-
       const errorResponse = HONO_ERROR(
         "UNPROCESSABLE_ENTITY",
-        "Validation failed",
+        "Request validation failed",
         {
-          name: "Validation Error",
-          issues,
+          issues: issues.length > 0 ? issues : undefined,
           requestId,
           timestamp: true,
         }

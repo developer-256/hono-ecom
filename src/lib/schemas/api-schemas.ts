@@ -89,14 +89,13 @@ export const APISchema = {
    * HTTP 400 Bad Request - Client error response schema.
    *
    * Used when the request contains invalid syntax, parameters, or data.
-   * Contains error details with name and issues array for specific error messages.
+   * Contains error details with a descriptive message.
    *
    * @example
    * {
    *   success: false,
    *   error: {
-   *     name: "Bad Request",
-   *     issues: [{ message: "Invalid request parameters provided" }]
+   *     message: "Invalid request parameters provided"
    *   },
    *   statusCode: 400
    * }
@@ -108,14 +107,16 @@ export const APISchema = {
         schema: z.object({
           success: z.boolean().default(false),
           error: z.object({
-            name: z.string().default("Bad Request"),
+            message: z.string().default("Invalid request parameters provided"),
             issues: z
               .array(
                 z.object({
                   message: z.string(),
+                  path: z.string().optional(),
+                  code: z.string().optional(),
                 })
               )
-              .default([{ message: "Invalid request parameters provided" }]),
+              .optional(),
           }),
           statusCode: z.number().optional().default(HTTP.BAD_REQUEST),
         }),
@@ -133,8 +134,7 @@ export const APISchema = {
    * {
    *   success: false,
    *   error: {
-   *     name: "Unauthorized",
-   *     issues: [{ message: "Authentication required" }]
+   *     message: "Authentication required"
    *   },
    *   statusCode: 401
    * }
@@ -146,14 +146,16 @@ export const APISchema = {
         schema: z.object({
           success: z.boolean().default(false),
           error: z.object({
-            name: z.string().default("Unauthorized"),
+            message: z.string().default("Authentication required"),
             issues: z
               .array(
                 z.object({
                   message: z.string(),
+                  path: z.string().optional(),
+                  code: z.string().optional(),
                 })
               )
-              .default([{ message: "Authentication required" }]),
+              .optional(),
           }),
           statusCode: z.number().optional().default(HTTP.UNAUTHORIZED),
         }),
@@ -171,8 +173,7 @@ export const APISchema = {
    * {
    *   success: false,
    *   error: {
-   *     name: "Forbidden",
-   *     issues: [{ message: "Insufficient permissions" }]
+   *     message: "Access denied"
    *   },
    *   statusCode: 403
    * }
@@ -184,14 +185,16 @@ export const APISchema = {
         schema: z.object({
           success: z.boolean().default(false),
           error: z.object({
-            name: z.string().default("Forbidden"),
+            message: z.string().default("Access denied"),
             issues: z
               .array(
                 z.object({
                   message: z.string(),
+                  path: z.string().optional(),
+                  code: z.string().optional(),
                 })
               )
-              .default([{ message: "Insufficient permissions" }]),
+              .optional(),
           }),
           statusCode: z.number().optional().default(HTTP.FORBIDDEN),
         }),
@@ -209,8 +212,7 @@ export const APISchema = {
    * {
    *   success: false,
    *   error: {
-   *     name: "Not Found",
-   *     issues: [{ message: "Resource not found" }]
+   *     message: "Requested resource not found"
    *   },
    *   statusCode: 404
    * }
@@ -222,14 +224,16 @@ export const APISchema = {
         schema: z.object({
           success: z.boolean().default(false),
           error: z.object({
-            name: z.string().default("Not Found"),
+            message: z.string().default("Requested resource not found"),
             issues: z
               .array(
                 z.object({
                   message: z.string(),
+                  path: z.string().optional(),
+                  code: z.string().optional(),
                 })
               )
-              .default([{ message: "Resource not found" }]),
+              .optional(),
           }),
           statusCode: z.number().optional().default(HTTP.NOT_FOUND),
         }),
@@ -247,8 +251,7 @@ export const APISchema = {
    * {
    *   success: false,
    *   error: {
-   *     name: "Conflict",
-   *     issues: [{ message: "Resource already exists with the same identifier" }]
+   *     message: "Resource conflict occurred"
    *   },
    *   statusCode: 409
    * }
@@ -260,16 +263,16 @@ export const APISchema = {
         schema: z.object({
           success: z.boolean().default(false),
           error: z.object({
-            name: z.string().default("Conflict"),
+            message: z.string().default("Resource conflict occurred"),
             issues: z
               .array(
                 z.object({
                   message: z.string(),
+                  path: z.string().optional(),
+                  code: z.string().optional(),
                 })
               )
-              .default([
-                { message: "Resource already exists with the same identifier" },
-              ]),
+              .optional(),
           }),
           statusCode: z.number().optional().default(HTTP.CONFLICT),
         }),
@@ -287,11 +290,7 @@ export const APISchema = {
    * {
    *   success: false,
    *   error: {
-   *     name: "Validation Error",
-   *     issues: [
-   *       { message: "Email is required" },
-   *       { message: "Password must be at least 8 characters" }
-   *     ]
+   *     message: "Request validation failed"
    *   },
    *   statusCode: 422
    * }
@@ -303,14 +302,16 @@ export const APISchema = {
         schema: z.object({
           success: z.boolean().default(false),
           error: z.object({
-            name: z.string().default("Validation Error"),
+            message: z.string().default("Request validation failed"),
             issues: z
               .array(
                 z.object({
                   message: z.string(),
+                  path: z.string().optional(),
+                  code: z.string().optional(),
                 })
               )
-              .default([{ message: "Validation error occurred" }]),
+              .optional(),
           }),
           statusCode: z.number().optional().default(HTTP.UNPROCESSABLE_ENTITY),
         }),
@@ -329,8 +330,7 @@ export const APISchema = {
    * {
    *   success: false,
    *   error: {
-   *     name: "Internal Server Error",
-   *     issues: [{ message: "An unexpected error occurred" }]
+   *     message: "An unexpected error occurred"
    *   },
    *   statusCode: 500
    * }
@@ -342,14 +342,16 @@ export const APISchema = {
         schema: z.object({
           success: z.boolean().default(false),
           error: z.object({
-            name: z.string().default("Internal Server Error"),
+            message: z.string().default("An unexpected error occurred"),
             issues: z
               .array(
                 z.object({
                   message: z.string(),
+                  path: z.string().optional(),
+                  code: z.string().optional(),
                 })
               )
-              .default([{ message: "An unexpected error occurred" }]),
+              .optional(),
           }),
           statusCode: z.number().optional().default(HTTP.INTERNAL_SERVER_ERROR),
         }),
@@ -379,14 +381,16 @@ export const CommonSchemas = {
   errorResponse: z.object({
     success: z.literal(false),
     error: z.object({
-      name: z.string(),
-      issues: z.array(
-        z.object({
-          message: z.string(),
-          path: z.string().optional(),
-          code: z.string().optional(),
-        })
-      ),
+      message: z.string(),
+      issues: z
+        .array(
+          z.object({
+            message: z.string(),
+            path: z.string().optional(),
+            code: z.string().optional(),
+          })
+        )
+        .optional(),
     }),
     statusCode: z.number(),
     timestamp: z.string().optional(),
