@@ -5,7 +5,7 @@ export {
   sendOrderConfirmationEmail,
   type EmailOptions,
   type EmailResponse,
-} from "./service";
+} from "./service/mailer.service";
 
 export {
   welcomeEmailTemplate,
