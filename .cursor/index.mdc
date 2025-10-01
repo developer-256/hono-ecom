@@ -1,0 +1,218 @@
+# Hono E-commerce Project Rules
+
+This document contains the coding standards, patterns, and conventions for the Hono E-commerce project.
+
+## Overview
+
+This project follows NestJS-inspired naming conventions and patterns while using Hono as the web framework. The codebase emphasizes:
+
+- **Structured Architecture**: Clear module separation with consistent naming
+- **Standardized Responses**: Unified API response patterns
+- **Comprehensive Logging**: Structured logging with Sentry integration
+- **Type Safety**: Full TypeScript coverage with proper typing
+
+## Rule Categories
+
+### 1. [Naming Conventions](./rules/naming-conventions.mdc)
+
+- Module structure and file naming patterns
+- Import/export conventions
+- Variable and function naming standards
+- Consistency rules across the codebase
+
+**Key Points:**
+
+- Controllers: `{module}.controller.ts`
+- Services: `{module}.service.ts`
+- Entities: `{module}.entity.ts`
+- Routes: `{action}.{module}.route.ts`
+
+### 2. [Response Patterns](./rules/response-patterns.mdc)
+
+- Standardized API response utilities
+- Success and error response structures
+- Pagination patterns
+- HTTP status code usage
+
+**Key Points:**
+
+- Use `HONO_RESPONSE()` for success responses
+- Use `HONO_ERROR()` for error responses
+- Use `HONO_PAGINATED_RESPONSE()` for lists
+- Always include proper status codes and messages
+
+### 3. [Logging Patterns](./rules/logging-patterns.mdc)
+
+- Structured logging with context data
+- Sentry integration for error tracking
+- Log level usage guidelines
+- Performance and debugging patterns
+
+**Key Points:**
+
+- Use `HONO_LOGGER` for all logging
+- Always include structured context
+- Integrate with Sentry for production monitoring
+- Follow appropriate log levels
+
+## Project Structure
+
+```
+src/
+├── modules/
+│   ├── auth/
+│   │   ├── controller/auth.controller.ts
+│   │   ├── service/auth.service.ts
+│   │   ├── entity/auth.entity.ts
+│   │   └── routes/
+│   │       ├── admin.auth.route.ts
+│   │       ├── auth.auth.route.ts
+│   │       └── session.auth.route.ts
+│   ├── user/
+│   │   ├── controller/user.controller.ts
+│   │   ├── service/user.service.ts
+│   │   ├── entity/user.entity.ts
+│   │   └── routes/
+│   │       ├── get.user.route.ts
+│   │       ├── post.user.route.ts
+│   │       ├── delete.user.route.ts
+│   │       ├── profile.user.route.ts
+│   │       └── ...
+│   └── mailer/
+│       ├── controller/mailer.controller.ts
+│       ├── service/mailer.service.ts
+│       └── routes/post.mailer.route.ts
+├── lib/
+│   ├── core/
+│   │   ├── hono-logger.ts
+│   │   └── ...
+│   ├── utils/
+│   │   ├── response-utils.ts
+│   │   └── ...
+│   └── middlewares/
+└── main.ts
+```
+
+## Quick Reference
+
+### Creating a New Module
+
+1. Create module directory: `src/modules/{module-name}/`
+2. Add controller: `controller/{module-name}.controller.ts`
+3. Add service: `service/{module-name}.service.ts`
+4. Add entity: `entity/{module-name}.entity.ts`
+5. Add routes: `routes/{action}.{module-name}.route.ts`
+
+### Route Handler Template
+
+```typescript
+import { RouteHandler } from "@hono/zod-openapi";
+import { HONO_RESPONSE, HONO_ERROR } from "@/lib/utils/response-utils";
+import { HONO_LOGGER } from "@/lib/core/hono-logger";
+import { HTTP } from "@/lib/http/status-codes";
+
+export const handler: RouteHandler = async (c) => {
+  const requestId = c.get("requestId");
+
+  try {
+    HONO_LOGGER.log("Operation started", { requestId });
+
+    // Your logic here
+    const result = await SomeService.performOperation();
+
+    HONO_LOGGER.log("Operation completed", { requestId, result });
+    return c.json(HONO_RESPONSE({ data: result }), HTTP.OK);
+  } catch (error) {
+    HONO_LOGGER.error("Operation failed", { requestId, error: error.message });
+    return c.json(
+      HONO_ERROR("INTERNAL_SERVER_ERROR"),
+      HTTP.INTERNAL_SERVER_ERROR
+    );
+  }
+};
+```
+
+### Service Class Template
+
+```typescript
+import { HONO_LOGGER } from "@/lib/core/hono-logger";
+
+export class ModuleService {
+  static async performOperation(data: any) {
+    try {
+      HONO_LOGGER.debug("Starting operation", { data });
+
+      // Your logic here
+      const result = await someAsyncOperation(data);
+
+      HONO_LOGGER.log("Operation successful", { result });
+      return result;
+    } catch (error) {
+      HONO_LOGGER.error("Operation failed", {
+        data,
+        error: error.message,
+      });
+
+      HONO_LOGGER.sentry.captureException(error, {
+        operation: "module_operation",
+        data,
+      });
+
+      throw error;
+    }
+  }
+}
+```
+
+## Development Guidelines
+
+### Code Quality
+
+- Follow TypeScript strict mode
+- Use proper error handling with try/catch
+- Include comprehensive logging with context
+- Write descriptive commit messages
+- Use meaningful variable and function names
+
+### API Design
+
+- RESTful endpoint design
+- Consistent response structures
+- Proper HTTP status codes
+- Comprehensive error messages
+- Input validation with Zod schemas
+
+### Performance
+
+- Log performance metrics
+- Use appropriate database queries
+- Implement proper caching strategies
+- Monitor memory usage
+- Track request/response times
+
+### Security
+
+- Never log sensitive information
+- Validate all inputs
+- Use proper authentication/authorization
+- Implement rate limiting
+- Follow OWASP guidelines
+
+## Tools and Dependencies
+
+- **Framework**: Hono
+- **Database**: Drizzle ORM with PostgreSQL
+- **Validation**: Zod
+- **Logging**: Custom structured logger with Sentry
+- **Authentication**: Better Auth
+- **Runtime**: Bun
+
+## Getting Started
+
+1. Follow the naming conventions for new files
+2. Use the response utilities for all API responses
+3. Implement structured logging throughout your code
+4. Include proper error handling and validation
+5. Write comprehensive tests for your modules
+
+For detailed information on each topic, refer to the specific rule files in the `rules/` directory.

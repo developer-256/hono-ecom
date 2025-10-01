@@ -1,0 +1,198 @@
+# Response Patterns
+
+## Standard Response Utilities
+
+Always use the standardized response utilities from `@/lib/utils/response-utils`.
+
+### Success Responses
+
+Use `HONO_RESPONSE` for all successful API responses:
+
+```typescript
+// Simple success without data
+return c.json(HONO_RESPONSE(), HTTP.OK);
+
+// Success with data
+return c.json(HONO_RESPONSE({ data: user }), HTTP.OK);
+
+// Created resource
+return c.json(
+  HONO_RESPONSE({
+    data: newUser,
+    message: "User created successfully",
+    statusCode: "CREATED",
+  }),
+  HTTP.CREATED
+);
+
+// With request tracking
+return c.json(
+  HONO_RESPONSE({
+    data: results,
+    requestId: c.get("requestId"),
+  }),
+  HTTP.OK
+);
+```
+
+### Error Responses
+
+Use `HONO_ERROR` for all error responses:
+
+```typescript
+// Simple error
+return c.json(
+  HONO_ERROR("BAD_REQUEST", "Invalid request data"),
+  HTTP.BAD_REQUEST
+);
+
+// Error with validation issues (Zod-style)
+return c.json(
+  HONO_ERROR("UNPROCESSABLE_ENTITY", "Validation failed", {
+    issues: [
+      { message: "Email is required", path: "email", code: "required" },
+      { message: "Password too short", path: "password", code: "min_length" },
+    ],
+  }),
+  HTTP.UNPROCESSABLE_ENTITY
+);
+
+// Error with request tracking
+return c.json(
+  HONO_ERROR("INTERNAL_SERVER_ERROR", "Database error", {
+    requestId: c.get("requestId"),
+  }),
+  HTTP.INTERNAL_SERVER_ERROR
+);
+```
+
+### Paginated Responses
+
+Use `HONO_PAGINATED_RESPONSE` for list endpoints:
+
+```typescript
+return c.json(
+  HONO_PAGINATED_RESPONSE(users, {
+    page: 1,
+    limit: 10,
+    total: 100,
+    totalPages: 10,
+  }),
+  HTTP.OK
+);
+```
+
+## Response Structure Rules
+
+### Success Response Structure
+
+```typescript
+{
+  success: true,
+  message: string,
+  statusCode: number,
+  data?: T,
+  timestamp?: string,
+  requestId?: string
+}
+```
+
+### Error Response Structure
+
+```typescript
+{
+  success: false,
+  error: {
+    message: string,
+    issues?: Array<{ message: string; path?: string; code?: string }>
+  },
+  statusCode: number,
+  timestamp?: string,
+  requestId?: string
+}
+```
+
+### Paginated Response Structure
+
+```typescript
+{
+  success: true,
+  message: string,
+  statusCode: number,
+  data: {
+    items: T[],
+    pagination: {
+      page: number,
+      limit: number,
+      total: number,
+      totalPages: number,
+      hasNext: boolean,
+      hasPrev: boolean
+    }
+  },
+  timestamp?: string,
+  requestId?: string
+}
+```
+
+## Best Practices
+
+### DO
+
+- Always use the standardized response utilities
+- Include meaningful error messages
+- Use appropriate HTTP status codes
+- Include request IDs for tracing when available
+- Provide validation issues in structured format
+- Use consistent message formatting
+
+### DON'T
+
+- Create custom response structures
+- Return raw data without wrapper
+- Use generic error messages
+- Forget to include proper status codes
+- Mix different response patterns in the same API
+
+### Error Handling Patterns
+
+```typescript
+// Route handler error handling
+try {
+  const result = await SomeService.performOperation(data);
+  return c.json(HONO_RESPONSE({ data: result }), HTTP.OK);
+} catch (error) {
+  if (error instanceof ValidationError) {
+    return c.json(
+      HONO_ERROR("UNPROCESSABLE_ENTITY", error.message, {
+        issues: error.issues,
+      }),
+      HTTP.UNPROCESSABLE_ENTITY
+    );
+  }
+
+  if (error instanceof NotFoundError) {
+    return c.json(HONO_ERROR("NOT_FOUND", error.message), HTTP.NOT_FOUND);
+  }
+
+  // Log unexpected errors
+  HONO_LOGGER.error("Unexpected error in route", { error: error.message });
+  return c.json(
+    HONO_ERROR("INTERNAL_SERVER_ERROR"),
+    HTTP.INTERNAL_SERVER_ERROR
+  );
+}
+```
+
+### Status Code Usage
+
+- `200 OK`: Successful GET, PATCH, PUT operations
+- `201 CREATED`: Successful POST operations that create resources
+- `204 NO_CONTENT`: Successful DELETE operations
+- `400 BAD_REQUEST`: Invalid request parameters
+- `401 UNAUTHORIZED`: Authentication required
+- `403 FORBIDDEN`: Access denied
+- `404 NOT_FOUND`: Resource not found
+- `409 CONFLICT`: Resource conflict
+- `422 UNPROCESSABLE_ENTITY`: Validation errors
+- `500 INTERNAL_SERVER_ERROR`: Unexpected server errors

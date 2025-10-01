@@ -9,7 +9,7 @@ import {
   requireSuperAdmin,
   AuthUser,
 } from "@/lib/middlewares/auth.middleware";
-import UserService from "../service";
+import UserService from "../service/user.service";
 
 // Update profile schema
 const UpdateProfileSchema = z.object({

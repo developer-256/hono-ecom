@@ -20,10 +20,10 @@ import { faviconMiddleware } from "./lib/middlewares/favicon-middleware";
 import { HTTP } from "./lib/http/status-codes";
 import { APISchema } from "./lib/schemas/api-schemas";
 import { HONO_RESPONSE } from "./lib/utils";
-import { mailerController } from "./modules/mailer/controller";
-import { userController } from "./modules/user/controller";
-import { authController } from "./modules/auth/controller";
-import { auth } from "./modules/auth/service";
+import { mailerController } from "./modules/mailer/controller/mailer.controller";
+import { userController } from "./modules/user/controller/user.controller";
+import { authController } from "./modules/auth/controller/auth.controller";
+import { auth } from "./modules/auth/service/auth.service";
 
 const createApp = () => {
   const app = createRouter().basePath("/api");

@@ -1,0 +1,315 @@
+# Logging Patterns
+
+## Structured Logging with HONO_LOGGER
+
+Always use the structured logger from `@/lib/core/hono-logger` for consistent logging across the application.
+
+### Basic Usage
+
+```typescript
+import { HONO_LOGGER } from "@/lib/core/hono-logger";
+
+// Simple messages
+HONO_LOGGER.error("Something went wrong");
+HONO_LOGGER.warn("This is a warning");
+HONO_LOGGER.log("Information message");
+HONO_LOGGER.debug("Debug information");
+HONO_LOGGER.verbose("Verbose output");
+```
+
+### Structured Logging (RECOMMENDED)
+
+Always include context data for better debugging and monitoring:
+
+```typescript
+// Error with rich context
+HONO_LOGGER.error("Payment processing failed", {
+  userId: "123",
+  orderId: "order_456",
+  amount: 100,
+  currency: "USD",
+  errorCode: "PAYMENT_DECLINED",
+  gateway: "stripe",
+});
+
+// Warning with system context
+HONO_LOGGER.warn("High memory usage detected", {
+  currentUsage: "85%",
+  threshold: "80%",
+  availableMemory: "2.1GB",
+  processId: 1234,
+});
+
+// Info with user activity
+HONO_LOGGER.log("User logged in", {
+  userId: "123",
+  email: "user@example.com",
+  loginMethod: "google",
+  userAgent: "Mozilla/5.0...",
+  sessionId: "sess_789",
+});
+
+// Debug with performance data
+HONO_LOGGER.debug("Database query executed", {
+  query: "SELECT * FROM users WHERE active = true",
+  executionTime: "45ms",
+  rowsReturned: 150,
+  cacheHit: false,
+});
+```
+
+## Sentry Integration
+
+Use Sentry methods for advanced error tracking and monitoring:
+
+### Exception Handling
+
+```typescript
+// Capture exception with context
+try {
+  // Some operation
+} catch (error) {
+  HONO_LOGGER.sentry.captureException(error, {
+    userId: "123",
+    operation: "payment_processing",
+    amount: 100,
+  });
+}
+```
+
+### User Context
+
+```typescript
+// Set user context for better error tracking
+HONO_LOGGER.sentry.setUser({
+  id: "user_123",
+  email: "user@example.com",
+  username: "johndoe",
+});
+```
+
+### Custom Context and Tags
+
+```typescript
+// Add custom context
+HONO_LOGGER.sentry.setContext("payment", {
+  amount: 100,
+  currency: "USD",
+  gateway: "stripe",
+});
+
+// Add tags for filtering
+HONO_LOGGER.sentry.setTag("feature", "authentication");
+HONO_LOGGER.sentry.setTag("environment", "production");
+```
+
+### Breadcrumbs
+
+```typescript
+// Add breadcrumbs for debugging context
+HONO_LOGGER.sentry.addBreadcrumb("User clicked checkout button", "ui", "info", {
+  cartItems: 3,
+  totalAmount: 299.99,
+});
+```
+
+### Custom Messages
+
+```typescript
+// Capture custom messages
+HONO_LOGGER.sentry.captureMessage("Payment processing completed", "info", {
+  amount: 100,
+  currency: "USD",
+  processingTime: "2.3s",
+});
+```
+
+## Logging Levels and Usage
+
+### ERROR
+
+Use for actual errors that need immediate attention:
+
+```typescript
+HONO_LOGGER.error("Database connection failed", {
+  host: "localhost",
+  port: 5432,
+  database: "app_db",
+  error: error.message,
+});
+```
+
+### WARN
+
+Use for potentially problematic situations:
+
+```typescript
+HONO_LOGGER.warn("Rate limit approaching", {
+  endpoint: "/api/users",
+  currentRate: 95,
+  maxRate: 100,
+  clientIp: "192.168.1.1",
+});
+```
+
+### LOG (INFO)
+
+Use for general information about application flow:
+
+```typescript
+HONO_LOGGER.log("User authentication successful", {
+  userId: "123",
+  email: "user@example.com",
+  loginMethod: "google",
+  timestamp: new Date().toISOString(),
+});
+```
+
+### DEBUG
+
+Use for detailed diagnostic information:
+
+```typescript
+HONO_LOGGER.debug("Processing user data", {
+  step: "validation",
+  userId: "123",
+  processingTime: "150ms",
+  memoryUsage: "12MB",
+});
+```
+
+### VERBOSE
+
+Use for very detailed diagnostic information:
+
+```typescript
+HONO_LOGGER.verbose("Database query performance", {
+  query: "SELECT * FROM users WHERE...",
+  executionTime: "45ms",
+  memoryUsage: "12MB",
+  rowsReturned: 150,
+  cacheHit: false,
+});
+```
+
+## Best Practices
+
+### DO
+
+- Always include structured context data
+- Use appropriate log levels
+- Include user IDs and request IDs when available
+- Log both successful operations and errors
+- Use meaningful, searchable messages
+- Include performance metrics when relevant
+- Set user context early in request lifecycle
+
+### DON'T
+
+- Log sensitive information (passwords, tokens, PII)
+- Use console.log directly
+- Log without context data
+- Use generic error messages
+- Log at inappropriate levels
+- Forget to include relevant identifiers
+
+### Context Data Guidelines
+
+```typescript
+// Good context structure
+{
+  userId: "123",           // User identifier
+  requestId: "req_456",    // Request tracking
+  operation: "payment",    // What was being done
+  duration: "150ms",       // Performance data
+  status: "success",       // Operation result
+  metadata: {              // Additional relevant data
+    amount: 100,
+    currency: "USD"
+  }
+}
+```
+
+### Error Logging Pattern
+
+```typescript
+// Service layer error handling
+export class UserService {
+  static async createUser(userData: UserCreateData) {
+    try {
+      HONO_LOGGER.debug("Creating new user", {
+        email: userData.email,
+        role: userData.role,
+      });
+
+      const user = await db.insert(userTable).values(userData).returning();
+
+      HONO_LOGGER.log("User created successfully", {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+      });
+
+      return user;
+    } catch (error) {
+      HONO_LOGGER.error("Failed to create user", {
+        email: userData.email,
+        error: error.message,
+        stack: error.stack,
+      });
+
+      // Also capture to Sentry for monitoring
+      HONO_LOGGER.sentry.captureException(error, {
+        operation: "user_creation",
+        email: userData.email,
+      });
+
+      throw error;
+    }
+  }
+}
+```
+
+### Request Lifecycle Logging
+
+```typescript
+// Route handler logging pattern
+export const createUserHandler: RouteHandler = async (c) => {
+  const requestId = c.get("requestId");
+
+  HONO_LOGGER.log("User creation request started", {
+    requestId,
+    endpoint: "/api/users",
+    method: "POST",
+  });
+
+  try {
+    const userData = await c.req.json();
+
+    HONO_LOGGER.debug("User data validated", {
+      requestId,
+      email: userData.email,
+    });
+
+    const user = await UserService.createUser(userData);
+
+    HONO_LOGGER.log("User creation completed", {
+      requestId,
+      userId: user.id,
+      duration: "250ms",
+    });
+
+    return c.json(HONO_RESPONSE({ data: user }), HTTP.CREATED);
+  } catch (error) {
+    HONO_LOGGER.error("User creation failed", {
+      requestId,
+      error: error.message,
+    });
+
+    return c.json(
+      HONO_ERROR("INTERNAL_SERVER_ERROR"),
+      HTTP.INTERNAL_SERVER_ERROR
+    );
+  }
+};
+```

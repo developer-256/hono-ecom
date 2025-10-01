@@ -1,7 +1,7 @@
 import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
-import { user } from "@/modules/user/entity";
+import { user } from "@/modules/user/entity/user.entity";
 
 // Better Auth Core Tables
 export const session = pgTable("session", {

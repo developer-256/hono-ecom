@@ -2,5 +2,5 @@
 // This file should only contain imports, no table definitions
 
 // Import all module entities
-export * from "@/modules/auth/entity";
-export * from "@/modules/user/entity";
+export * from "@/modules/auth/entity/auth.entity";
+export * from "@/modules/user/entity/user.entity";

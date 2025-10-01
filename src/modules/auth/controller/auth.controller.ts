@@ -1,7 +1,7 @@
 import { createRouter } from "@/lib/core/create-router";
-import { authRoutes } from "../routes/auth";
-import { sessionRoutes } from "../routes/session";
-import { adminRoutes } from "../routes/admin";
+import { authRoutes } from "../routes/auth.auth.route";
+import { sessionRoutes } from "../routes/session.auth.route";
+import { adminRoutes } from "../routes/admin.auth.route";
 
 /**
  * Auth Controller

@@ -1,7 +1,7 @@
 import { db } from "@/db";
-import { user } from "@/modules/user/entity";
+import { user } from "@/modules/user/entity/user.entity";
 import { eq, and, desc, asc, or, ilike, count } from "drizzle-orm";
-import type { UserTableType } from "@/modules/user/entity";
+import type { UserTableType } from "@/modules/user/entity/user.entity";
 
 export interface UserCreateData {
   id: string;

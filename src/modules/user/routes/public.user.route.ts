@@ -3,7 +3,7 @@ import { moduleTags } from "../../module.tags";
 import { APISchema } from "@/lib/schemas/api-schemas";
 import { HTTP } from "@/lib/http/status-codes";
 import { HONO_RESPONSE, HONO_ERROR } from "@/lib/utils";
-import UserService from "../service";
+import UserService from "../service/user.service";
 
 // Check if user exists schema
 const CheckUserSchema = z.object({

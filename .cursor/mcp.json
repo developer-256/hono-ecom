@@ -1,0 +1,72 @@
+{
+  "name": "hono-ecom-rules",
+  "version": "1.0.0",
+  "description": "Coding rules and conventions for the Hono E-commerce project",
+  "rules": {
+    "naming-conventions": {
+      "file": "./rules/naming-conventions.mdc",
+      "description": "NestJS-inspired naming conventions for modules, files, and variables",
+      "categories": ["naming", "structure", "imports"],
+      "priority": "high"
+    },
+    "response-patterns": {
+      "file": "./rules/response-patterns.mdc",
+      "description": "Standardized API response patterns using HONO_RESPONSE and HONO_ERROR utilities",
+      "categories": ["api", "responses", "error-handling"],
+      "priority": "high"
+    },
+    "logging-patterns": {
+      "file": "./rules/logging-patterns.mdc",
+      "description": "Structured logging patterns with HONO_LOGGER and Sentry integration",
+      "categories": ["logging", "monitoring", "debugging"],
+      "priority": "medium"
+    }
+  },
+  "categories": {
+    "naming": {
+      "description": "File and variable naming conventions"
+    },
+    "structure": {
+      "description": "Project and module structure guidelines"
+    },
+    "imports": {
+      "description": "Import and export patterns"
+    },
+    "api": {
+      "description": "API design and implementation patterns"
+    },
+    "responses": {
+      "description": "HTTP response standardization"
+    },
+    "error-handling": {
+      "description": "Error handling and validation patterns"
+    },
+    "logging": {
+      "description": "Logging and monitoring practices"
+    },
+    "monitoring": {
+      "description": "Application monitoring and observability"
+    },
+    "debugging": {
+      "description": "Debugging and troubleshooting guidelines"
+    }
+  },
+  "enforcement": {
+    "strict": ["naming-conventions", "response-patterns"],
+    "recommended": ["logging-patterns"]
+  },
+  "tools": {
+    "framework": "Hono",
+    "runtime": "Bun",
+    "database": "Drizzle ORM + PostgreSQL",
+    "validation": "Zod",
+    "authentication": "Better Auth",
+    "monitoring": "Sentry"
+  },
+  "metadata": {
+    "created": "2025-01-01",
+    "lastUpdated": "2025-01-01",
+    "version": "1.0.0",
+    "maintainer": "Development Team"
+  }
+}

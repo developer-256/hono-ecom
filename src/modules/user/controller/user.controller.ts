@@ -1,6 +1,6 @@
 import { createRouter } from "@/lib/core/create-router";
-import { publicUserRoutes } from "../routes/public";
-import { privateUserRoutes } from "../routes/private";
+import { publicUserRoutes } from "../routes/public.user.route";
+import { privateUserRoutes } from "../routes/private.user.route";
 
 /**
  * User Controller
