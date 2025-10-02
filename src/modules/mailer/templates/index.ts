@@ -7,3 +7,7 @@ export {
   orderConfirmationEmailTemplate,
   type OrderConfirmationEmailData,
 } from "./order-confirmation";
+export {
+  emailVerificationEmailTemplate,
+  type EmailVerificationEmailData,
+} from "./email-verification";

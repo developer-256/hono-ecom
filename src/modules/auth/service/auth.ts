@@ -2,6 +2,11 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db";
 import env from "@/env";
+import {
+  sendEmailVerificationEmail,
+  sendPasswordResetEmail,
+} from "@/modules/mailer";
+import { HONO_LOGGER } from "@/lib/core/hono-logger";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -9,6 +14,11 @@ export const auth = betterAuth({
   }),
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,
+
+  // Debug logging
+  logger: {
+    level: "debug",
+  },
 
   // Social providers configuration
   socialProviders:
@@ -26,6 +36,9 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true, // Enable email verification
   },
+
+  // Email verification configuration - use default better-auth behavior
+  // Better-auth uses JWT tokens for email verification by default
 
   // Session configuration
   session: {
@@ -58,54 +71,52 @@ export const auth = betterAuth({
     },
   },
 
-  // Email configuration using Resend
+  // Email configuration using mailer module
   emailVerification: {
     sendVerificationEmail: async (
       data: { user: any; url: string; token: string },
       request?: Request
     ) => {
-      // Configure email sending via Resend
-      const { Resend } = await import("resend");
-      const resend = new Resend(env.RESEND_API_KEY);
+      await sendEmailVerificationEmail(
+        data.user.email,
+        data.url,
+        data.user.name
+      );
+    },
 
-      const { data: response, error } = await resend.emails.send({
-        from: "noreply@yourapp.com", // Replace with your domain
-        to: data.user.email,
-        subject: "Verify your email address",
-        html: `
-            <div>
-              <h2>Verify your email address</h2>
-              <p>Click the link below to verify your email address:</p>
-              <a href="${data.url}">Verify Email</a>
-              <p>If you didn't create an account, you can safely ignore this email.</p>
-            </div>
-          `,
+    autoSignInAfterVerification: true,
+
+    afterEmailVerification: async (user, req) => {
+      HONO_LOGGER.sentry.captureMessage(
+        "User email verified successfully",
+        "info",
+        {
+          userId: user.id,
+          email: user.email,
+          name: user.name,
+          verifiedAt: new Date().toISOString(),
+          userAgent: req?.headers?.get("user-agent"),
+          ipAddress:
+            req?.headers?.get("x-forwarded-for") ||
+            req?.headers?.get("x-real-ip"),
+        }
+      );
+
+      HONO_LOGGER.info("User email verified successfully", {
+        userId: user.id,
+        email: user.email,
+        name: user.name,
       });
     },
   },
 
-  // Password reset configuration
+  // Password reset configuration using mailer module
   forgetPassword: {
     sendResetPassword: async (
       data: { user: any; url: string; token: string },
       request?: Request
     ) => {
-      const { Resend } = await import("resend");
-      const resend = new Resend(env.RESEND_API_KEY);
-
-      await resend.emails.send({
-        from: "noreply@yourapp.com", // Replace with your domain
-        to: data.user.email,
-        subject: "Reset your password",
-        html: `
-          <div>
-            <h2>Reset your password</h2>
-            <p>Click the link below to reset your password:</p>
-            <a href="${data.url}">Reset Password</a>
-            <p>If you didn't request a password reset, you can safely ignore this email.</p>
-          </div>
-        `,
-      });
+      await sendPasswordResetEmail(data.user.email, data.url);
     },
   },
 

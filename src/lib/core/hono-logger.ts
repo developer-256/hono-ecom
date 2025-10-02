@@ -276,6 +276,37 @@ export const HONO_LOGGER = {
   },
 
   /**
+   * Log informational messages to console only (alias for log)
+   *
+   * @param message - The main info message
+   * @param context - Optional structured context data
+   *
+   * @example
+   * ```typescript
+   * // Simple message
+   * logger.info("User authentication successful");
+   *
+   * // With structured context
+   * logger.info("User logged in", {
+   *   userId: "123",
+   *   email: "user@example.com",
+   *   loginMethod: "google",
+   *   timestamp: new Date().toISOString()
+   * });
+   * ```
+   */
+  info: (message: string, context?: LogContext) => {
+    const logEntry = createLogEntry("log", message, context);
+
+    // Console logging only - no automatic Sentry integration
+    console.log(
+      `${COLORS.Dim}[${logEntry.timestamp}]: -${COLORS.Reset}${COLORS.hex(
+        "#22b872ff"
+      )} INFO - ${logEntry.fullMessage}${COLORS.Reset}`
+    );
+  },
+
+  /**
    * Log warning messages to console only
    * Use HONO_LOGGER.sentry methods for explicit Sentry reporting
    *

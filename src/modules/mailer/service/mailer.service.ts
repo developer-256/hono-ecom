@@ -4,9 +4,11 @@ import {
   welcomeEmailTemplate,
   passwordResetEmailTemplate,
   orderConfirmationEmailTemplate,
+  emailVerificationEmailTemplate,
   type WelcomeEmailData,
   type PasswordResetEmailData,
   type OrderConfirmationEmailData,
+  type EmailVerificationEmailData,
 } from "../templates";
 import { HONO_LOGGER } from "@/lib/core/hono-logger";
 
@@ -73,7 +75,8 @@ export const sendEmail = async (
       };
     }
 
-    console.log("✅ Email sent successfully:", data?.id);
+    HONO_LOGGER.info("✅ Email sent successfully:", { emailId: data?.id });
+
     return {
       success: true,
       data,
@@ -147,5 +150,27 @@ export const sendOrderConfirmationEmail = async (
     subject: orderConfirmationEmailTemplate.subject(data),
     html: orderConfirmationEmailTemplate.html(data),
     text: orderConfirmationEmailTemplate.text(data),
+  });
+};
+
+/**
+ * Send an email verification email template
+ * @param to Recipient email address
+ * @param verificationLink Email verification link
+ * @param userName Optional user name
+ * @returns Promise with email response
+ */
+export const sendEmailVerificationEmail = async (
+  to: string,
+  verificationLink: string,
+  userName?: string
+): Promise<EmailResponse> => {
+  const data: EmailVerificationEmailData = { verificationLink, userName };
+
+  return sendEmail({
+    to,
+    subject: emailVerificationEmailTemplate.subject,
+    html: emailVerificationEmailTemplate.html(data),
+    text: emailVerificationEmailTemplate.text(data),
   });
 };

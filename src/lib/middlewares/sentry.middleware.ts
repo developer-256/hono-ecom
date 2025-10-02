@@ -1,6 +1,6 @@
 import { Context, Next } from "hono";
 import { Sentry } from "../core/sentry";
-import { logger } from "../core/hono-logger";
+import { HONO_LOGGER, logger } from "../core/hono-logger";
 import env from "../../env";
 
 /**
@@ -50,7 +50,7 @@ export const sentryMiddleware = async (c: Context, next: Next) => {
 export const sentryErrorHandler = (originalErrorHandler: any) => {
   return (err: any, c: Context) => {
     // Log error with our enhanced logger
-    logger.sentry.captureException(
+    HONO_LOGGER.sentry.captureException(
       err instanceof Error ? err : new Error(String(err)),
       {
         requestId: c.get("requestId"),

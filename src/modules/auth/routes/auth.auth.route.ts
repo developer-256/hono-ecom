@@ -89,7 +89,7 @@ export const POST_SignUp_Handler: RouteHandler<
   try {
     const { email, password, name } = c.req.valid("json");
 
-    const { auth } = await import("@/modules/auth/service");
+    const { auth } = await import("@/modules/auth/service/auth.service");
 
     const result = await auth.api.signUpEmail({
       headers: c.req.raw.headers,
@@ -207,7 +207,7 @@ export const POST_SignIn_Handler: RouteHandler<
   try {
     const { email, password } = c.req.valid("json");
 
-    const { auth } = await import("@/modules/auth/service");
+    const { auth } = await import("@/modules/auth/service/auth.service");
 
     const result = await auth.api.signInEmail({
       headers: c.req.raw.headers,
@@ -295,7 +295,7 @@ export const GET_GoogleSignIn_Handler: RouteHandler<
   typeof GET_GoogleSignIn_Route
 > = async (c) => {
   try {
-    const { auth } = await import("@/modules/auth/service");
+    const { auth } = await import("@/modules/auth/service/auth.service");
 
     const result = await auth.api.signInSocial({
       headers: c.req.raw.headers,
@@ -354,7 +354,7 @@ export const POST_SignOut_Handler: RouteHandler<
   typeof POST_SignOut_Route
 > = async (c) => {
   try {
-    const { auth } = await import("@/modules/auth/service");
+    const { auth } = await import("@/modules/auth/service/auth.service");
 
     await auth.api.signOut({
       headers: c.req.raw.headers,
@@ -422,7 +422,7 @@ export const POST_ForgotPassword_Handler: RouteHandler<
   try {
     const { email } = c.req.valid("json");
 
-    const { auth } = await import("@/modules/auth/service");
+    const { auth } = await import("@/modules/auth/service/auth.service");
 
     await auth.api.forgetPassword({
       headers: c.req.raw.headers,
@@ -502,7 +502,7 @@ export const POST_ResetPassword_Handler: RouteHandler<
   try {
     const { token, password } = c.req.valid("json");
 
-    const { auth } = await import("@/modules/auth/service");
+    const { auth } = await import("@/modules/auth/service/auth.service");
 
     const result = await auth.api.resetPassword({
       headers: c.req.raw.headers,
@@ -580,6 +580,7 @@ export const POST_VerifyEmail_Route = createRoute({
             success: z.boolean(),
             message: z.string(),
             statusCode: z.number(),
+            data: z.object({ callbackURL: z.string() }),
           }),
         },
       },
@@ -594,9 +595,14 @@ export const POST_VerifyEmail_Handler: RouteHandler<
   typeof POST_VerifyEmail_Route
 > = async (c) => {
   try {
-    const { token } = c.req.valid("json");
+    const { token: rawToken } = c.req.valid("json");
 
-    const { auth } = await import("@/modules/auth/service");
+    // Parse token to remove callbackURL if present
+    const token = rawToken.includes("&callbackURL=")
+      ? rawToken.split("&callbackURL=")[0]
+      : rawToken;
+
+    const { auth } = await import("@/modules/auth/service/auth.service");
 
     const result = await auth.api.verifyEmail({
       headers: c.req.raw.headers,
@@ -619,6 +625,11 @@ export const POST_VerifyEmail_Handler: RouteHandler<
     return c.json(
       HONO_RESPONSE({
         message: "Email verification successful. Your account is now verified.",
+        data: {
+          callbackURL: rawToken.includes("&callbackURL=")
+            ? rawToken.split("&callbackURL=")[1]
+            : "/",
+        },
       }),
       HTTP.OK
     );
@@ -692,7 +703,7 @@ export const POST_ResendVerification_Handler: RouteHandler<
   try {
     const { email } = c.req.valid("json");
 
-    const { auth } = await import("@/modules/auth/service");
+    const { auth } = await import("@/modules/auth/service/auth.service");
 
     await auth.api.sendVerificationEmail({
       headers: c.req.raw.headers,

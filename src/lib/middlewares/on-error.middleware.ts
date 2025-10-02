@@ -27,17 +27,6 @@ export const onError: ErrorHandler = (err, c) => {
     requestId: c.get("requestId"),
   });
 
-  // Report serious errors to Sentry (500+ status codes)
-  if (statusCode >= 500) {
-    HONO_LOGGER.sentry.captureException(err, {
-      statusCode,
-      path: c.req.path,
-      method: c.req.method,
-      requestId: c.get("requestId"),
-      userAgent: c.req.header("user-agent"),
-    });
-  }
-
   return c.json(
     {
       message: err.message,
