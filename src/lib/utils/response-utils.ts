@@ -33,6 +33,7 @@ interface ErrorOptions {
   issues?: Array<{ message: string; path?: string; code?: string }>;
   timestamp?: boolean;
   requestId?: string;
+  error?: Error | any; // Optional error object to extract route/method info
 }
 
 /**
@@ -46,6 +47,7 @@ interface ErrorOptions {
  * @param options.issues - Optional array of detailed error issues (Zod-compatible structure)
  * @param options.timestamp - Whether to include timestamp (default: true)
  * @param options.requestId - Optional request ID for tracing
+ * @param options.error - Optional error object to extract route/method information for debugging
  * @returns Standardized error response object
  *
  * @example
@@ -70,6 +72,23 @@ interface ErrorOptions {
  * HONO_ERROR("INTERNAL_SERVER_ERROR", "Database error", {
  *   requestId: "req_123456"
  * })
+ *
+ * // With error object for route/method debugging (5xx errors get detailed logging)
+ * HONO_ERROR("BAD_REQUEST", "Invalid token", {
+ *   error: {
+ *     route: "/auth/verify-email",
+ *     method: "POST",
+ *     path: "/auth/verify-email",
+ *     userAgent: "Mozilla/5.0...",
+ *     ip: "192.168.1.1"
+ *   }
+ * })
+ *
+ * // With Error object for stack trace logging
+ * HONO_ERROR("INTERNAL_SERVER_ERROR", "Database connection failed", {
+ *   error: new Error("Connection timeout"),
+ *   requestId: "req_789012"
+ * })
  */
 export function HONO_ERROR(
   statusCode: HTTPStatusKey,
@@ -83,6 +102,7 @@ export function HONO_ERROR(
     issues,
     timestamp = true,
     requestId,
+    error: errorObject,
   } = options;
 
   // Generate a generic message based on the status code
@@ -126,8 +146,45 @@ export function HONO_ERROR(
     response.requestId = requestId;
   }
 
-  // Log error information to console for debugging
-  HONO_LOGGER.error(`HTTP ${statusValue} Error: ${finalMessage}`);
+  if (statusValue >= 500) {
+    HONO_LOGGER.error(`HTTP ${statusValue} | Error: ${finalMessage}`, {
+      originalError: errorObject,
+    });
+
+    // Report to Sentry for 5xx errors
+    if (errorObject instanceof Error) {
+      HONO_LOGGER.sentry.captureException(errorObject, {
+        tags: {
+          statusCode: statusValue,
+          errorCode: statusCode,
+        },
+        extra: {
+          message: finalMessage,
+          requestId,
+          timestamp: new Date().toISOString(),
+        },
+      });
+    } else if (errorObject) {
+      // For non-Error objects, capture as a message
+      HONO_LOGGER.sentry.captureMessage(
+        `HTTP ${statusValue} Error: ${finalMessage}`,
+        "error",
+        {
+          tags: {
+            statusCode: statusValue,
+            errorCode: statusCode,
+          },
+          extra: {
+            originalError: errorObject,
+            requestId,
+            timestamp: new Date().toISOString(),
+          },
+        }
+      );
+    }
+  } else {
+    HONO_LOGGER.error(`HTTP ${statusValue} | Error: ${finalMessage}`);
+  }
 
   return response;
 }

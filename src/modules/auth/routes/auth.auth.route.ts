@@ -37,6 +37,7 @@ const VerifyEmailSchema = z.object({
 // Resend verification email schema
 const ResendVerificationSchema = z.object({
   email: z.email("Invalid email address"),
+  callbackURL: z.string("").default("https://onlinecrockerystore.com"),
 });
 
 // ============ SIGN UP ROUTE ============
@@ -701,7 +702,7 @@ export const POST_ResendVerification_Handler: RouteHandler<
   typeof POST_ResendVerification_Route
 > = async (c) => {
   try {
-    const { email } = c.req.valid("json");
+    const { email, callbackURL } = c.req.valid("json");
 
     const { auth } = await import("@/modules/auth/service/auth.service");
 
@@ -709,6 +710,7 @@ export const POST_ResendVerification_Handler: RouteHandler<
       headers: c.req.raw.headers,
       body: {
         email,
+        callbackURL,
       },
     });
 

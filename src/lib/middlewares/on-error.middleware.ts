@@ -19,7 +19,7 @@ export const onError: ErrorHandler = (err, c) => {
   const curr_env = c.env?.NODE_ENV || env.NODE_ENV;
 
   // Log error for debugging
-  HONO_LOGGER.error(`HTTP ${statusCode} Error: ${err.message}`, {
+  HONO_LOGGER.error(`HTTP ${statusCode} | Error: ${err.message}`, {
     statusCode,
     path: c.req.path,
     method: c.req.method,

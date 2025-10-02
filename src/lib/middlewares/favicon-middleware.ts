@@ -22,7 +22,11 @@ export function faviconMiddleware(emoji: string): MiddlewareHandler {
   </svg>`;
 
   return async (c, next) => {
-    if (c.req.path === "/favicon.ico" || c.req.path === "/favicon") {
+    if (
+      c.req.path === "/favicon.ico" ||
+      c.req.path === "/favicon" ||
+      c.req.path === "/api/favicon"
+    ) {
       c.header("Content-Type", "image/svg+xml");
       c.header("Cache-Control", "public, max-age=3600");
       return c.body(svgContent);

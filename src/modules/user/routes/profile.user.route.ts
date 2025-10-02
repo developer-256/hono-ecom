@@ -144,7 +144,7 @@ export const PATCH_Profile_Handler: RouteHandler<
     const user = c.get("user") as AuthUser;
 
     // Import UserService for direct database updates
-    const UserService = await import("../service");
+    const UserService = await import("../service/user.service");
 
     const updatedUser = await UserService.default.updateUser(
       user.id,

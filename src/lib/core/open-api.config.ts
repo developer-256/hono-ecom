@@ -22,7 +22,7 @@ export default function configureOpenAPI(app: OpenAPIHono) {
         clientKey: "fetch",
       },
       url: "/api/doc",
-      favicon: `favicon`
+      favicon: `/api/favicon`
     })
   );
 }

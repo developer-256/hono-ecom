@@ -1,5 +1,3 @@
-- check how to update callbackURL in the verification email. (Maybe from the frontend client)
-
 Check routes checkList:
 
 1. signup

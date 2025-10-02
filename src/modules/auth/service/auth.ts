@@ -85,6 +85,7 @@ export const auth = betterAuth({
     },
 
     autoSignInAfterVerification: true,
+    expiresIn: 60 * 60 * 6, // 6 hours in seconds
 
     afterEmailVerification: async (user, req) => {
       HONO_LOGGER.sentry.captureMessage(

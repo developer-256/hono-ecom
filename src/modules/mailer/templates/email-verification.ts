@@ -22,7 +22,7 @@ export const emailVerificationEmailTemplate = {
         If you didn't create an account, you can safely ignore this email.
       </p>
       <p style="font-size: 12px; color: #999; text-align: center; margin-top: 30px;">
-        This verification link will expire in 24 hours.
+        This verification link will expire in 6 hours.
       </p>
     </div>
   `,
@@ -31,5 +31,5 @@ export const emailVerificationEmailTemplate = {
     `Welcome${data.userName ? ` ${data.userName}` : ""}!\n\n` +
     `Thank you for signing up! Please verify your email address by clicking this link: ${data.verificationLink}\n\n` +
     `If you didn't create an account, you can safely ignore this email.\n\n` +
-    `This verification link will expire in 24 hours.`,
+    `This verification link will expire in 6 hours.`,
 };

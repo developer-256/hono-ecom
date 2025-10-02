@@ -78,7 +78,7 @@ export const POST_Handler: RouteHandler<typeof POST_Route> = async (c) => {
      * @Info Import sendEmail from the service
      * @Reason code splitting and boost application startup
      */
-    const { sendEmail } = await import("../service");
+    const { sendEmail } = await import("../service/mailer.service");
 
     // Send the email using the validated data
     const result = await sendEmail(emailData);
@@ -108,6 +108,7 @@ export const POST_Handler: RouteHandler<typeof POST_Route> = async (c) => {
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );

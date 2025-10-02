@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/node";
 // The @sentry/profiling-node package uses libuv functions not yet supported by Bun
 // import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import env from "../../env";
+import { HONO_LOGGER } from "./hono-logger";
 
 /**
  * Initialize Sentry for error monitoring, performance tracking, and logging
@@ -42,14 +43,16 @@ export function initializeSentry() {
       beforeSend(event) {
         // Filter out any sensitive data if needed
         if (env.NODE_ENV === "development") {
-          console.log("🐛 Sentry event:", event);
+          HONO_LOGGER.info("🐛 Sentry event captured");
+          // console.log("🐛 Sentry event:", event);
         }
         return event;
       },
 
       beforeSendTransaction(event) {
         if (env.NODE_ENV === "development") {
-          console.log("📊 Sentry transaction:", event);
+          HONO_LOGGER.info("📊 Sentry transaction captured");
+          // console.log("📊 Sentry transaction:", event);
         }
         return event;
       },

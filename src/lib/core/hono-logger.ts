@@ -426,17 +426,10 @@ export const HONO_LOGGER = {
     captureException: (error: Error, context?: Record<string, any>) => {
       const logId = nanoid();
 
-      // Console logging
-      console.log(
-        `${COLORS.Dim}[${new Date().toUTCString()}]: ${logId} -${
-          COLORS.Reset
-        }${COLORS.hex("#d11824ff")} EXCEPTION - ${error.message}${COLORS.Reset}`
-      );
-
       // Sentry logging
       if (env.SENTRY_ENABLED) {
         Sentry.captureException(error, {
-          tags: { source: "custom-logger", logId },
+          tags: { source: "app.use(logger)", logId },
           extra: context,
         });
       }
