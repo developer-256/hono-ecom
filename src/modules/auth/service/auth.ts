@@ -7,6 +7,9 @@ import {
   sendPasswordResetEmail,
 } from "@/modules/mailer";
 import { HONO_LOGGER } from "@/lib/core/hono-logger";
+import { admin, openAPI } from "better-auth/plugins";
+import { Role, DEFAULT_ROLE } from "@/modules/auth/entity/role.enum";
+import { inferAdditionalFields } from "better-auth/client/plugins";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -14,6 +17,17 @@ export const auth = betterAuth({
   }),
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,
+  plugins: [
+    openAPI({ path: "/api/reference" }),
+    admin(),
+    inferAdditionalFields({
+      user: {
+        role: {
+          type: "string",
+        },
+      },
+    }),
+  ],
 
   // Debug logging
   logger: {
@@ -51,8 +65,8 @@ export const auth = betterAuth({
     additionalFields: {
       role: {
         type: "string",
-        defaultValue: "user",
-        required: true,
+        defaultValue: DEFAULT_ROLE,
+        returned: true,
       },
     },
   },

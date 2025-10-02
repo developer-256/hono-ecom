@@ -103,6 +103,7 @@ export const GET_Profile_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -203,6 +204,7 @@ export const PATCH_Profile_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -267,6 +269,7 @@ export const DELETE_Account_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -371,6 +374,7 @@ export const GET_Users_Handler: RouteHandler<typeof GET_Users_Route> = async (
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -465,6 +469,7 @@ export const GET_UserById_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -584,6 +589,7 @@ export const PATCH_User_Handler: RouteHandler<typeof PATCH_User_Route> = async (
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -671,6 +677,7 @@ export const DELETE_User_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -740,6 +747,7 @@ export const GET_UserStats_Handler: RouteHandler<
                   : "Unknown error occurred",
             },
           ],
+          error,
         }
       ),
       HTTP.INTERNAL_SERVER_ERROR

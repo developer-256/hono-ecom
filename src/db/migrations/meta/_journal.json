@@ -8,6 +8,13 @@
       "when": 1758730371573,
       "tag": "0000_certain_spitfire",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1759427483185,
+      "tag": "0001_smart_wolfsbane",
+      "breakpoints": true
     }
   ]
 }

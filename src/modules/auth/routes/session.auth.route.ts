@@ -76,6 +76,7 @@ export const GET_Session_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );

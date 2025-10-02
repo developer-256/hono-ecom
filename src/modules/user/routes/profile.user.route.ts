@@ -77,6 +77,7 @@ export const GET_Profile_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -186,6 +187,7 @@ export const PATCH_Profile_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );

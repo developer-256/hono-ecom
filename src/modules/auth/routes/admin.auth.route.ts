@@ -89,6 +89,7 @@ export const GET_Users_Handler: RouteHandler<typeof GET_Users_Route> = async (
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -199,6 +200,7 @@ export const PATCH_UserRole_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -277,6 +279,7 @@ export const GET_MyRole_Handler: RouteHandler<typeof GET_MyRole_Route> = async (
                   : "Unknown error occurred",
             },
           ],
+          error,
         }
       ),
       HTTP.INTERNAL_SERVER_ERROR

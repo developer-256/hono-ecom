@@ -3,6 +3,17 @@ import { relations } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 import { user } from "@/modules/user/entity/user.entity";
 
+// Export Role enum for easy access
+export {
+  Role,
+  DEFAULT_ROLE,
+  ROLE_HIERARCHY,
+  ROLE_DESCRIPTIONS,
+  hasRolePrivilege,
+  getAssignableRoles,
+  getAllRoles,
+} from "./role.enum";
+
 // Better Auth Core Tables
 export const session = pgTable("session", {
   id: text("id").primaryKey(),
@@ -17,6 +28,7 @@ export const session = pgTable("session", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
+  impersonatedBy: text("impersonated_by"), // Better Auth admin plugin field
 });
 
 export const account = pgTable("account", {

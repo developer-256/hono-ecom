@@ -4,18 +4,49 @@ import { APISchema } from "@/lib/schemas/api-schemas";
 import { HTTP } from "@/lib/http/status-codes";
 import { HONO_RESPONSE, HONO_ERROR } from "@/lib/utils";
 import { optionalAuthMiddleware } from "@/lib/middlewares/auth.middleware";
+import { DEFAULT_ROLE, Role } from "@/modules/auth/entity/role.enum";
 
 // Sign up schema
 const SignUpSchema = z.object({
   email: z.email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  name: z.string().min(1, "Name is required"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+    ),
+  name: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name must not exceed 50 characters"),
+  // role: z
+  //   .enum([
+  //     Role.CUSTOMER,
+  //     Role.VENDOR,
+  //     Role.CONTENT_EDITOR,
+  //     Role.SALES_MANAGER,
+  //   ] as const)
+  //   .default(Role.CUSTOMER)
+  //   .describe("User role - defaults to customer"),
+  callbackURL: z
+    .url("Invalid callback URL")
+    .optional()
+    .describe("URL to redirect after successful signup"),
+  image: z.url("Invalid image URL").optional().describe("Profile image URL"),
+  rememberMe: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe("Remember user session"),
 });
 
 // Sign in schema
 const SignInSchema = z.object({
   email: z.email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
+  rememberMe: z.boolean().optional(),
+  callbackURL: z.string().optional(),
 });
 
 // Password reset request schema
@@ -70,6 +101,7 @@ export const POST_SignUp_Route = createRoute({
                 id: z.string(),
                 email: z.string(),
                 name: z.string(),
+                role: z.string().describe("User role"),
                 emailVerified: z.boolean(),
               }),
             }),
@@ -88,7 +120,8 @@ export const POST_SignUp_Handler: RouteHandler<
   typeof POST_SignUp_Route
 > = async (c) => {
   try {
-    const { email, password, name } = c.req.valid("json");
+    const { email, password, name, callbackURL, image, rememberMe } =
+      c.req.valid("json");
 
     const { auth } = await import("@/modules/auth/service/auth.service");
 
@@ -98,6 +131,10 @@ export const POST_SignUp_Handler: RouteHandler<
         email,
         password,
         name,
+        callbackURL,
+        image,
+        rememberMe,
+        role: DEFAULT_ROLE,
       },
     });
 
@@ -119,6 +156,7 @@ export const POST_SignUp_Handler: RouteHandler<
             id: result.user.id,
             email: result.user.email,
             name: result.user.name,
+            role: (result.user as any).role || Role.CUSTOMER,
             emailVerified: result.user.emailVerified,
           },
         },
@@ -146,6 +184,7 @@ export const POST_SignUp_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -178,17 +217,20 @@ export const POST_SignIn_Route = createRoute({
             message: z.string(),
             statusCode: z.number(),
             data: z.object({
+              redirect: z.boolean(),
+              token: z
+                .string()
+                .describe(
+                  "Session token to be used as Bearer token in Authorization header"
+                ),
+              url: z.string().optional().describe("Redirect URL if applicable"),
               user: z.object({
                 id: z.string(),
                 email: z.string(),
                 name: z.string(),
+                role: z.string().describe("User role"),
+                image: z.string().optional().nullable(),
                 emailVerified: z.boolean(),
-                role: z.string(),
-              }),
-              session: z.object({
-                id: z.string(),
-                userId: z.string(),
-                expiresAt: z.string(),
               }),
             }),
           }),
@@ -206,7 +248,7 @@ export const POST_SignIn_Handler: RouteHandler<
   typeof POST_SignIn_Route
 > = async (c) => {
   try {
-    const { email, password } = c.req.valid("json");
+    const { email, password, rememberMe, callbackURL } = c.req.valid("json");
 
     const { auth } = await import("@/modules/auth/service/auth.service");
 
@@ -215,8 +257,14 @@ export const POST_SignIn_Handler: RouteHandler<
       body: {
         email,
         password,
+        callbackURL: callbackURL,
+        rememberMe: rememberMe,
       },
     });
+
+    // console.log("====================================");
+    // console.log(JSON.stringify(result, null, 2));
+    // console.log("====================================");
 
     if (!result) {
       return c.json(
@@ -227,25 +275,19 @@ export const POST_SignIn_Handler: RouteHandler<
       );
     }
 
+    // Return the complete result object as data, but ensure role is included
+    const responseData = {
+      ...result,
+      user: {
+        ...result.user,
+        role: (result.user as any).role || Role.CUSTOMER,
+      },
+    };
+
     return c.json(
       HONO_RESPONSE({
         message: "Sign in successful",
-        data: {
-          user: {
-            id: result.user.id,
-            email: result.user.email,
-            name: result.user.name,
-            emailVerified: result.user.emailVerified,
-            role: (result.user as any).role || "user",
-          },
-          session: {
-            id: (result as any).session?.id || "",
-            userId: (result as any).session?.userId || result.user.id,
-            expiresAt:
-              (result as any).session?.expiresAt?.toISOString() ||
-              new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-          },
-        },
+        data: responseData,
       }),
       HTTP.OK
     );
@@ -270,6 +312,7 @@ export const POST_SignIn_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -321,6 +364,7 @@ export const GET_GoogleSignIn_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -376,6 +420,7 @@ export const POST_SignOut_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -454,6 +499,7 @@ export const POST_ForgotPassword_Handler: RouteHandler<
                   : "Unknown error occurred",
             },
           ],
+          error,
         }
       ),
       HTTP.INTERNAL_SERVER_ERROR
@@ -550,6 +596,7 @@ export const POST_ResetPassword_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -657,6 +704,7 @@ export const POST_VerifyEmail_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -729,6 +777,7 @@ export const POST_ResendVerification_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );

@@ -79,6 +79,7 @@ export const POST_CheckUser_Handler: RouteHandler<
               error instanceof Error ? error.message : "Unknown error occurred",
           },
         ],
+        error,
       }),
       HTTP.INTERNAL_SERVER_ERROR
     );
@@ -174,6 +175,7 @@ export const GET_PublicUserInfo_Handler: RouteHandler<
                   : "Unknown error occurred",
             },
           ],
+          error,
         }
       ),
       HTTP.INTERNAL_SERVER_ERROR
