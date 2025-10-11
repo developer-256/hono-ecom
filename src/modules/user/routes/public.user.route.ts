@@ -7,7 +7,7 @@ import UserService from "../service/user.service";
 
 // Check if user exists schema
 const CheckUserSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.email("Invalid email address"),
 });
 
 // ============ CHECK USER EXISTS ROUTE (PUBLIC) ============
