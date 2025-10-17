@@ -12,6 +12,7 @@ import { adminRoutes } from "../routes/admin.auth.route";
  * - Admin: User management and administrative functions
  */
 export const authController = createRouter();
+export const newAuthController = createRouter();
 
 /**
  * Register a route with its middleware

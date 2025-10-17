@@ -4,7 +4,7 @@ import { APISchema } from "@/lib/schemas/api-schemas";
 import { HTTP } from "@/lib/http/status-codes";
 import { HONO_RESPONSE, HONO_ERROR } from "@/lib/utils";
 import { optionalAuthMiddleware } from "@/lib/middlewares/auth.middleware";
-import { DEFAULT_ROLE, Role } from "@/modules/auth/entity/role.enum";
+import { Roles } from "../service/permissions";
 
 // Sign up schema
 const SignUpSchema = z.object({
@@ -123,7 +123,7 @@ export const POST_SignUp_Handler: RouteHandler<
     const { email, password, name, callbackURL, image, rememberMe } =
       c.req.valid("json");
 
-    const { auth } = await import("@/modules/auth/service/auth.service");
+    const { auth } = await import("@/modules/auth/service/auth");
 
     const result = await auth.api.signUpEmail({
       headers: c.req.raw.headers,
@@ -134,7 +134,7 @@ export const POST_SignUp_Handler: RouteHandler<
         callbackURL,
         image,
         rememberMe,
-        role: DEFAULT_ROLE,
+        role: Roles.DEFAULT,
       },
     });
 
@@ -156,7 +156,7 @@ export const POST_SignUp_Handler: RouteHandler<
             id: result.user.id,
             email: result.user.email,
             name: result.user.name,
-            role: (result.user as any).role || Role.CUSTOMER,
+            role: (result.user as any).role || Roles.DEFAULT,
             emailVerified: result.user.emailVerified,
           },
         },
@@ -250,7 +250,7 @@ export const POST_SignIn_Handler: RouteHandler<
   try {
     const { email, password, rememberMe, callbackURL } = c.req.valid("json");
 
-    const { auth } = await import("@/modules/auth/service/auth.service");
+    const { auth } = await import("@/modules/auth/service/auth");
 
     const result = await auth.api.signInEmail({
       headers: c.req.raw.headers,
@@ -280,7 +280,7 @@ export const POST_SignIn_Handler: RouteHandler<
       ...result,
       user: {
         ...result.user,
-        role: (result.user as any).role || Role.CUSTOMER,
+        role: (result.user as any).role || Roles.DEFAULT,
       },
     };
 
@@ -339,7 +339,7 @@ export const GET_GoogleSignIn_Handler: RouteHandler<
   typeof GET_GoogleSignIn_Route
 > = async (c) => {
   try {
-    const { auth } = await import("@/modules/auth/service/auth.service");
+    const { auth } = await import("@/modules/auth/service/auth");
 
     const result = await auth.api.signInSocial({
       headers: c.req.raw.headers,
@@ -399,7 +399,7 @@ export const POST_SignOut_Handler: RouteHandler<
   typeof POST_SignOut_Route
 > = async (c) => {
   try {
-    const { auth } = await import("@/modules/auth/service/auth.service");
+    const { auth } = await import("@/modules/auth/service/auth");
 
     await auth.api.signOut({
       headers: c.req.raw.headers,
@@ -468,7 +468,7 @@ export const POST_ForgotPassword_Handler: RouteHandler<
   try {
     const { email } = c.req.valid("json");
 
-    const { auth } = await import("@/modules/auth/service/auth.service");
+    const { auth } = await import("@/modules/auth/service/auth");
 
     await auth.api.forgetPassword({
       headers: c.req.raw.headers,
@@ -549,7 +549,7 @@ export const POST_ResetPassword_Handler: RouteHandler<
   try {
     const { token, password } = c.req.valid("json");
 
-    const { auth } = await import("@/modules/auth/service/auth.service");
+    const { auth } = await import("@/modules/auth/service/auth");
 
     const result = await auth.api.resetPassword({
       headers: c.req.raw.headers,
@@ -650,7 +650,7 @@ export const POST_VerifyEmail_Handler: RouteHandler<
       ? rawToken.split("&callbackURL=")[0]
       : rawToken;
 
-    const { auth } = await import("@/modules/auth/service/auth.service");
+    const { auth } = await import("@/modules/auth/service/auth");
 
     const result = await auth.api.verifyEmail({
       headers: c.req.raw.headers,
@@ -752,7 +752,7 @@ export const POST_ResendVerification_Handler: RouteHandler<
   try {
     const { email, callbackURL } = c.req.valid("json");
 
-    const { auth } = await import("@/modules/auth/service/auth.service");
+    const { auth } = await import("@/modules/auth/service/auth");
 
     await auth.api.sendVerificationEmail({
       headers: c.req.raw.headers,

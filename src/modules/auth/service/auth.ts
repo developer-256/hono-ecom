@@ -8,13 +8,13 @@ import {
 } from "@/modules/mailer";
 import { HONO_LOGGER } from "@/lib/core/hono-logger";
 import { admin as adminPlugin, openAPI } from "better-auth/plugins";
-import { Role, DEFAULT_ROLE } from "@/modules/auth/entity/role.enum";
 import { inferAdditionalFields } from "better-auth/client/plugins";
 import {
   ac,
   admin,
   contentEditor,
   customer,
+  Roles,
   salesManager,
   superAdmin,
   vendor,
@@ -37,6 +37,8 @@ export const auth = betterAuth({
         contentEditor,
         customer,
       },
+      defaultRole: Roles.DEFAULT,
+      adminRoles: [Roles.SUPER_ADMIN, Roles.ADMIN],
     }),
   ],
 
@@ -76,7 +78,7 @@ export const auth = betterAuth({
     additionalFields: {
       role: {
         type: "string",
-        defaultValue: DEFAULT_ROLE,
+        defaultValue: Roles.DEFAULT,
         returned: true,
       },
     },

@@ -23,7 +23,7 @@ import { HONO_RESPONSE } from "./lib/utils";
 import { mailerController } from "./modules/mailer/controller/mailer.controller";
 import { userController } from "./modules/user/controller/user.controller";
 import { authController } from "./modules/auth/controller/auth.controller";
-import { auth } from "./modules/auth/service/auth.service";
+import { auth } from "./modules/auth/service/auth";
 
 const createApp = () => {
   const app = createRouter().basePath("/api");

@@ -1,6 +1,34 @@
 import { createAccessControl } from "better-auth/plugins/access";
 import { defaultStatements } from "better-auth/plugins/admin/access";
 
+/**
+ * @usage
+ *
+ * Example to check user permissions on the server:
+ *
+ * ```ts
+ * const data = await auth.api.userHasPermission({
+ *   body: {
+ *     userId: "user-id",
+ *     role: "admin", // server-only
+ *     permissions: { project: ["create", "update"] }
+ *   },
+ * });
+ * ```
+ *
+ * Example to check role permissions on the client (no await needed):
+ *
+ * ```ts
+ * const canDeleteUserAndRevokeSession = authClient.admin.checkRolePermission({
+ *   permissions: {
+ *     user: ["delete"],
+ *     session: ["revoke"]
+ *   },
+ *   role: "admin",
+ * });
+ * ```
+ */
+
 // prettier-ignore
 /**
  * Permission statements for the ecommerce platform
@@ -24,11 +52,11 @@ const statement = {
 
   analytics: ["view_sales", "view_traffic", "view_customers", "view_products", "export_reports"],
 
-  system: ["configure", "backup", "restore", "maintenance", "view_logs"],
+  // system: ["configure", "backup", "restore", "maintenance", "view_logs"],
 
-  payment: ["process", "refund", "view_transactions", "manage_methods"],
+  // payment: ["process", "refund", "view_transactions", "manage_methods"],
 
-  shipping: ["configure_methods", "calculate_rates", "track_shipments", "manage_zones"],
+  // shipping: ["configure_methods", "calculate_rates", "track_shipments", "manage_zones"],
 
   review: ["create", "read", "update", "delete", "moderate", "respond"],
 
@@ -55,9 +83,6 @@ const superAdmin = ac.newRole({
   blog: ["create", "read", "update", "delete", "list", "publish", "unpublish"],
   discount: ["create", "read", "update", "delete", "list", "activate", "deactivate"],
   analytics: ["view_sales", "view_traffic", "view_customers", "view_products", "export_reports"],
-  system: ["configure", "backup", "restore", "maintenance", "view_logs"],
-  payment: ["process", "refund", "view_transactions", "manage_methods"],
-  shipping: ["configure_methods", "calculate_rates", "track_shipments", "manage_zones"],
   review: ["create", "read", "update", "delete", "moderate", "respond"],
   coupon: ["create", "read", "update", "delete", "list", "validate"],
   inventory: ["view", "update", "track", "alert", "transfer"],
@@ -79,9 +104,6 @@ const admin = ac.newRole({
   blog: ["create", "read", "update", "delete", "list", "publish", "unpublish"],
   discount: ["create", "read", "update", "delete", "list", "activate", "deactivate"],
   analytics: ["view_sales", "view_traffic", "view_customers", "view_products", "export_reports"],
-  system: ["configure", "view_logs"],
-  payment: ["process", "refund", "view_transactions"],
-  shipping: ["configure_methods", "calculate_rates", "track_shipments", "manage_zones"],
   review: ["read", "moderate", "respond"],
   coupon: ["create", "read", "update", "delete", "list", "validate"],
   inventory: ["view", "update", "track", "alert", "transfer"],
@@ -103,9 +125,6 @@ const vendor = ac.newRole({
   blog: [], // No blog permissions
   discount: ["create", "read", "update", "delete", "list"], // Own discounts only
   analytics: ["view_sales", "view_products"], // Own analytics only
-  system: [], // No system permissions
-  payment: ["view_transactions"], // Own transactions only
-  shipping: ["calculate_rates", "track_shipments"], // Basic shipping
   review: ["read", "respond"], // Can respond to reviews of their products
   coupon: ["create", "read", "update", "delete", "list", "validate"], // Own coupons only
   inventory: ["view", "update", "track", "alert"], // Own inventory only
@@ -126,9 +145,6 @@ const salesManager = ac.newRole({
   blog: [], // No blog permissions
   discount: ["create", "read", "update", "delete", "list", "activate", "deactivate"], // Full discount management
   analytics: ["view_sales", "view_traffic", "view_customers", "view_products", "export_reports"], // Full analytics
-  system: [], // No system permissions
-  payment: ["process", "refund", "view_transactions"], // Payment processing
-  shipping: ["configure_methods", "calculate_rates", "track_shipments"], // Shipping management
   review: ["read", "moderate"], // Can moderate reviews
   coupon: ["create", "read", "update", "delete", "list", "validate"], // Full coupon management
   inventory: ["view", "track"], // Inventory visibility
@@ -149,9 +165,6 @@ const contentEditor = ac.newRole({
   blog: ["create", "read", "update", "delete", "list", "publish", "unpublish"], // Full blog management
   discount: [], // No discount permissions
   analytics: [], // No analytics permissions
-  system: [], // No system permissions
-  payment: [], // No payment permissions
-  shipping: [], // No shipping permissions
   review: ["read", "moderate", "respond"], // Can moderate and respond to reviews
   coupon: [], // No coupon permissions
   inventory: [], // No inventory permissions
@@ -172,13 +185,29 @@ const customer = ac.newRole({
   blog: ["read"], // Can read blog posts
   discount: ["read"], // Can view available discounts
   analytics: [], // No analytics permissions
-  system: [], // No system permissions
-  payment: ["process"], // Can process their own payments
-  shipping: ["calculate_rates", "track_shipments"], // Can calculate shipping and track
   review: ["create", "read", "update"], // Can create and manage their own reviews
   coupon: ["validate"], // Can use coupons
   inventory: [], // No inventory permissions
   support: [], // No support permissions (customers create tickets through other means)
 });
 
-export { ac, superAdmin, admin, vendor, salesManager, contentEditor, customer };
+enum Roles {
+  SUPER_ADMIN = "superAdmin",
+  ADMIN = "admin",
+  VENDOR = "vendor",
+  SALES_MANAGER = "salesManager",
+  CONTENT_EDITOR = "contentEditor",
+  CUSTOMER = "customer",
+  DEFAULT = CUSTOMER,
+}
+
+export {
+  ac,
+  superAdmin,
+  admin,
+  vendor,
+  salesManager,
+  contentEditor,
+  customer,
+  Roles,
+};
