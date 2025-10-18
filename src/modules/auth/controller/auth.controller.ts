@@ -16,8 +16,10 @@ import {
  * - Admin: User management and administrative functions
  */
 export const authController = createRouter();
-export const newAuthController = createRouter();
-newAuthController.openapi(POST_SignUp_Route, POST_SignUp_Handler);
+export const newAuthController = createRouter().openapi(
+  POST_SignUp_Route,
+  POST_SignUp_Handler
+);
 
 /**
  * Register a route with its middleware

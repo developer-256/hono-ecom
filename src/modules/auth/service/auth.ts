@@ -5,9 +5,17 @@ import env from "@/env";
 import {
   sendEmailVerificationEmail,
   sendPasswordResetEmail,
+  sendEmailVerificationOTP,
+  sendPasswordResetOTP,
+  sendSigninOTP,
 } from "@/modules/mailer";
 import { HONO_LOGGER } from "@/lib/core/hono-logger";
-import { admin as adminPlugin, openAPI } from "better-auth/plugins";
+import {
+  admin as adminPlugin,
+  emailOTP,
+  openAPI,
+  username,
+} from "better-auth/plugins";
 import { inferAdditionalFields } from "better-auth/client/plugins";
 import {
   ac,
@@ -19,6 +27,9 @@ import {
   superAdmin,
   vendor,
 } from "../service/permissions";
+import { tryCatch } from "@/lib/utils";
+import { eq } from "drizzle-orm";
+import { user } from "@/db/schema";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -40,6 +51,55 @@ export const auth = betterAuth({
       defaultRole: Roles.DEFAULT,
       adminRoles: [Roles.SUPER_ADMIN, Roles.ADMIN],
     }),
+    emailOTP({
+      async sendVerificationOTP({ email, otp, type }) {
+        try {
+          // Try to get user information for personalized emails
+          let userName: string | undefined;
+
+          const { data, error } = await tryCatch(
+            db.query.user.findFirst({
+              where: eq(user.email, email),
+              columns: { name: true },
+            })
+          );
+          userName = data?.name;
+          if (error) {
+            HONO_LOGGER.warn("Could not fetch user info for OTP email", {
+              email,
+              error,
+            });
+          }
+
+          if (type === "email-verification") {
+            await sendEmailVerificationOTP(email, otp, userName);
+            HONO_LOGGER.info("Email verification OTP sent", { email, type });
+          } else if (type === "forget-password") {
+            await sendPasswordResetOTP(email, otp, userName);
+            HONO_LOGGER.info("Password reset OTP sent", { email, type });
+          } else {
+            await sendSigninOTP(email, otp, userName);
+            HONO_LOGGER.info("Sign-in OTP sent", { email, type });
+          }
+        } catch (error) {
+          HONO_LOGGER.error("Failed to send OTP email", { email, type, error });
+          HONO_LOGGER.sentry.captureException(error, {
+            tags: {
+              operation: "send_otp_email",
+              email_type: type,
+            },
+            extra: {
+              email,
+              type,
+              error: error instanceof Error ? error.message : String(error),
+            },
+          });
+          throw error; // Re-throw to let better-auth handle the error
+        }
+      },
+      overrideDefaultEmailVerification: true,
+      sendVerificationOnSignUp: true,
+    }),
   ],
 
   // Debug logging
@@ -57,12 +117,6 @@ export const auth = betterAuth({
           },
         }
       : {},
-
-  // Enable email and password authentication
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: true, // Enable email verification
-  },
 
   // Email verification configuration - use default better-auth behavior
   // Better-auth uses JWT tokens for email verification by default
@@ -95,56 +149,6 @@ export const auth = betterAuth({
           httpOnly: true,
         },
       },
-    },
-  },
-
-  // Email configuration using mailer module
-  emailVerification: {
-    sendVerificationEmail: async (
-      data: { user: any; url: string; token: string },
-      request?: Request
-    ) => {
-      await sendEmailVerificationEmail(
-        data.user.email,
-        data.url,
-        data.user.name
-      );
-    },
-
-    autoSignInAfterVerification: true,
-    expiresIn: 60 * 60 * 6, // 6 hours in seconds
-
-    afterEmailVerification: async (user, req) => {
-      HONO_LOGGER.sentry.captureMessage(
-        "User email verified successfully",
-        "info",
-        {
-          userId: user.id,
-          email: user.email,
-          name: user.name,
-          verifiedAt: new Date().toISOString(),
-          userAgent: req?.headers?.get("user-agent"),
-          ipAddress:
-            req?.headers?.get("x-forwarded-for") ||
-            req?.headers?.get("x-real-ip"),
-        }
-      );
-
-      HONO_LOGGER.info("User email verified successfully", {
-        userId: user.id,
-        email: user.email,
-        name: user.name,
-      });
-    },
-  },
-
-  // Password reset configuration using mailer module
-  forgetPassword: {
-    sendResetPassword: async (
-      data: { user: any; url: string; token: string },
-      request?: Request
-    ) => {
-      await sendPasswordResetEmail(data.user.email, data.url);
     },
   },
 

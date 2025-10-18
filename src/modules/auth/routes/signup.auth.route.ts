@@ -5,6 +5,47 @@ import { createRoute, RouteHandler } from "@hono/zod-openapi";
 import z from "zod";
 import { Roles } from "../service/permissions";
 import { HONO_ERROR, HONO_RESPONSE } from "@/lib/utils";
+import { authClient } from "../service/auth-client";
+
+/**
+ * @todo
+ * 
+ * 💻 4. Frontend flow
+// Step 1: Collect info
+const formData = {
+  email: "user@example.com",
+  name: "Ali",
+  image: "https://example.com/pic.png",
+  callbackURL: "https://myapp.com/dashboard",
+};
+
+// Step 2: Request OTP
+await authClient.emailOtp.sendVerificationOtp({
+  email: formData.email,
+  type: "sign-in",
+});
+
+// Step 3: User enters OTP
+await authClient.signIn.emailOtp({
+  email: formData.email,
+  otp: "123456",
+});
+
+// Step 4: Once signed in, send extra info to backend
+await fetch("/api/auth/save-user-info", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    name: formData.name,
+    image: formData.image,
+    callbackURL: formData.callbackURL,
+  }),
+});
+
+// Step 5 (optional): Redirect
+window.location.href = formData.callbackURL;
+ */
+
 // Sign up schema
 export const SignUpSchema = z.object({
   email: z.email("Invalid email address"),
@@ -71,6 +112,7 @@ export const POST_SignUp_Route = createRoute({
                 name: z.string(),
                 role: z.string().describe("User role"),
                 emailVerified: z.boolean(),
+                callbackURL: z.string().optional(),
               }),
             }),
           }),
@@ -92,6 +134,16 @@ export const POST_SignUp_Handler: RouteHandler<
       c.req.valid("json");
 
     const { auth } = await import("@/modules/auth/service/auth");
+
+    const otp = "asfd";
+    // const something = auth.api.signInEmailOTP({
+    //   headers: c.req.raw.headers,
+    //   body: { email, otp },
+    // });
+    const somethign = authClient.emailOtp.sendVerificationOtp({
+      email,
+      type: "sign-in",
+    });
 
     const result = await auth.api.signUpEmail({
       headers: c.req.raw.headers,
@@ -126,6 +178,7 @@ export const POST_SignUp_Handler: RouteHandler<
             name: result.user.name,
             role: (result.user as any).role || Roles.DEFAULT,
             emailVerified: result.user.emailVerified,
+            callbackURL,
           },
         },
       }),

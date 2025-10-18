@@ -423,7 +423,10 @@ export const HONO_LOGGER = {
      * }
      * ```
      */
-    captureException: (error: Error, context?: Record<string, any>) => {
+    captureException: (
+      error: Error | unknown,
+      context?: Record<string, any>
+    ) => {
       const logId = nanoid();
 
       // Sentry logging

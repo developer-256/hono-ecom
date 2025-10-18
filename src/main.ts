@@ -27,6 +27,7 @@ import {
   newAuthController,
 } from "./modules/auth/controller/auth.controller";
 import { auth } from "./modules/auth/service/auth";
+import { hc } from "hono/client";
 
 const createApp = () => {
   const app = createRouter().basePath("/api");
@@ -85,7 +86,7 @@ const controllers = [
   mailerController,
   userController,
   authController,
-];
+] as const;
 
 for (const controller of controllers) {
   app.route("/", controller);
@@ -105,3 +106,6 @@ HonoLogger(
 /**
  * const requestId = c.get("requestId")
  */
+
+export type AppType = (typeof controllers)[number];
+export const client = hc<AppType>("http://localhost:9999");

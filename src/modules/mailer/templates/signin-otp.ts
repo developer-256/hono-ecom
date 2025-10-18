@@ -1,0 +1,57 @@
+export interface SigninOTPData {
+  otp: string;
+  userName?: string;
+}
+
+export const signinOTPTemplate = {
+  subject: "Sign In Verification - OTP Code",
+
+  html: (data: SigninOTPData): string => `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+      <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h1 style="color: #333; text-align: center; margin-bottom: 30px;">Sign In Verification</h1>
+        
+        ${
+          data.userName
+            ? `<p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">Hello ${data.userName},</p>`
+            : ""
+        }
+        
+        <p style="font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+          We received a sign-in request for your account. Please use the following verification code to complete your sign-in:
+        </p>
+        
+        <div style="text-align: center; margin: 40px 0;">
+          <div style="background-color: #f8f9fa; border: 2px dashed #28a745; padding: 20px; border-radius: 8px; display: inline-block;">
+            <span style="font-size: 32px; font-weight: bold; color: #28a745; letter-spacing: 8px; font-family: 'Courier New', monospace;">
+              ${data.otp}
+            </span>
+          </div>
+        </div>
+        
+        <p style="font-size: 14px; color: #666; text-align: center; margin-bottom: 20px;">
+          Enter this code in the sign-in form to access your account.
+        </p>
+        
+        <div style="background-color: #d1ecf1; border: 1px solid #bee5eb; padding: 15px; border-radius: 5px; margin: 20px 0;">
+          <p style="font-size: 14px; color: #0c5460; margin: 0;">
+            <strong>Security Note:</strong> This code will expire in 10 minutes. If you didn't attempt to sign in, please secure your account immediately.
+          </p>
+        </div>
+        
+        <p style="font-size: 12px; color: #999; text-align: center; margin-top: 30px;">
+          This is an automated message. Please do not reply to this email.
+        </p>
+      </div>
+    </div>
+  `,
+
+  text: (data: SigninOTPData): string =>
+    `Sign In Verification\n\n` +
+    `${data.userName ? `Hello ${data.userName},\n\n` : ""}` +
+    `We received a sign-in request for your account. Please use the following verification code to complete your sign-in:\n\n` +
+    `Verification Code: ${data.otp}\n\n` +
+    `Enter this code in the sign-in form to access your account.\n\n` +
+    `Security Note: This code will expire in 10 minutes. If you didn't attempt to sign in, please secure your account immediately.\n\n` +
+    `This is an automated message. Please do not reply to this email.`,
+};

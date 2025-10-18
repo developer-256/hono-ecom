@@ -5,10 +5,16 @@ import {
   passwordResetEmailTemplate,
   orderConfirmationEmailTemplate,
   emailVerificationEmailTemplate,
+  emailVerificationOTPTemplate,
+  passwordResetOTPTemplate,
+  signinOTPTemplate,
   type WelcomeEmailData,
   type PasswordResetEmailData,
   type OrderConfirmationEmailData,
   type EmailVerificationEmailData,
+  type EmailVerificationOTPData,
+  type PasswordResetOTPData,
+  type SigninOTPData,
 } from "../templates";
 import { HONO_LOGGER } from "@/lib/core/hono-logger";
 
@@ -172,5 +178,71 @@ export const sendEmailVerificationEmail = async (
     subject: emailVerificationEmailTemplate.subject,
     html: emailVerificationEmailTemplate.html(data),
     text: emailVerificationEmailTemplate.text(data),
+  });
+};
+
+/**
+ * Send an email verification OTP email template
+ * @param to Recipient email address
+ * @param otp OTP code
+ * @param userName Optional user name
+ * @returns Promise with email response
+ */
+export const sendEmailVerificationOTP = async (
+  to: string,
+  otp: string,
+  userName?: string
+): Promise<EmailResponse> => {
+  const data: EmailVerificationOTPData = { otp, userName };
+
+  return sendEmail({
+    to,
+    subject: emailVerificationOTPTemplate.subject,
+    html: emailVerificationOTPTemplate.html(data),
+    text: emailVerificationOTPTemplate.text(data),
+  });
+};
+
+/**
+ * Send a password reset OTP email template
+ * @param to Recipient email address
+ * @param otp OTP code
+ * @param userName Optional user name
+ * @returns Promise with email response
+ */
+export const sendPasswordResetOTP = async (
+  to: string,
+  otp: string,
+  userName?: string
+): Promise<EmailResponse> => {
+  const data: PasswordResetOTPData = { otp, userName };
+
+  return sendEmail({
+    to,
+    subject: passwordResetOTPTemplate.subject,
+    html: passwordResetOTPTemplate.html(data),
+    text: passwordResetOTPTemplate.text(data),
+  });
+};
+
+/**
+ * Send a sign-in OTP email template
+ * @param to Recipient email address
+ * @param otp OTP code
+ * @param userName Optional user name
+ * @returns Promise with email response
+ */
+export const sendSigninOTP = async (
+  to: string,
+  otp: string,
+  userName?: string
+): Promise<EmailResponse> => {
+  const data: SigninOTPData = { otp, userName };
+
+  return sendEmail({
+    to,
+    subject: signinOTPTemplate.subject,
+    html: signinOTPTemplate.html(data),
+    text: signinOTPTemplate.text(data),
   });
 };

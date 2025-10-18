@@ -9,7 +9,7 @@ import {
   superAdmin,
   vendor,
 } from "../service/permissions";
-import { adminClient } from "better-auth/client/plugins";
+import { adminClient, emailOTPClient } from "better-auth/client/plugins";
 
 // Create Better Auth client for client-side usage
 export const authClient = createAuthClient({
@@ -26,6 +26,7 @@ export const authClient = createAuthClient({
         customer,
       },
     }),
+    emailOTPClient(),
   ],
 });
 
