@@ -12,7 +12,7 @@ import {
 export const GET_Session_Route = createRoute({
   path: "/session",
   method: "get",
-  tags: moduleTags.auth,
+  tags: moduleTags.oldAuth,
   summary: "Get current user session",
   description: "Retrieve the current authenticated user's session information",
   responses: {

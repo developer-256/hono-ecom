@@ -8,13 +8,13 @@ import {
   requireAdmin,
   requireSuperAdmin,
 } from "@/lib/middlewares/auth.middleware";
-import { auth } from "@/modules/auth/service/auth.service";
+import { auth } from "@/modules/auth/service/auth";
 
 // Get all users (admin only)
 export const GET_Users_Route = createRoute({
   path: "/users",
   method: "get",
-  tags: moduleTags.auth,
+  tags: moduleTags.oldAuth,
   summary: "Get all users",
   description: "Retrieve all users in the system (admin access required)",
   responses: {
@@ -105,7 +105,7 @@ const UpdateUserRoleSchema = z.object({
 export const PATCH_UserRole_Route = createRoute({
   path: "/users/role",
   method: "patch",
-  tags: moduleTags.auth,
+  tags: moduleTags.oldAuth,
   summary: "Update user role",
   description: "Update a user's role (super-admin access required)",
   request: {
@@ -211,7 +211,7 @@ export const PATCH_UserRole_Handler: RouteHandler<
 export const GET_MyRole_Route = createRoute({
   path: "/my-role",
   method: "get",
-  tags: moduleTags.auth,
+  tags: moduleTags.oldAuth,
   summary: "Get current user's role",
   description: "Retrieve the current user's role and permissions",
   responses: {

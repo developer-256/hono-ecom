@@ -73,9 +73,9 @@ const ResendVerificationSchema = z.object({
 
 // ============ SIGN UP ROUTE ============
 export const POST_SignUp_Route = createRoute({
-  path: "/auth/sign-up",
+  path: "/old-auth/sign-up",
   method: "post",
-  tags: moduleTags.auth,
+  tags: moduleTags.oldAuth,
   summary: "Sign up with email and password",
   description: "Create a new user account with email verification",
   request: {
@@ -193,9 +193,9 @@ export const POST_SignUp_Handler: RouteHandler<
 
 // ============ SIGN IN ROUTE ============
 export const POST_SignIn_Route = createRoute({
-  path: "/auth/sign-in",
+  path: "/old-auth/sign-in",
   method: "post",
-  tags: moduleTags.auth,
+  tags: moduleTags.oldAuth,
   summary: "Sign in with email and password",
   description: "Authenticate user with email and password",
   request: {
@@ -321,9 +321,9 @@ export const POST_SignIn_Handler: RouteHandler<
 
 // ============ GOOGLE SIGN IN ROUTE ============
 export const GET_GoogleSignIn_Route = createRoute({
-  path: "/auth/google",
+  path: "/old-auth/google",
   method: "get",
-  tags: moduleTags.auth,
+  tags: moduleTags.oldAuth,
   summary: "Sign in with Google",
   description: "Initiate Google OAuth sign in flow",
   responses: {
@@ -373,9 +373,9 @@ export const GET_GoogleSignIn_Handler: RouteHandler<
 
 // ============ SIGN OUT ROUTE ============
 export const POST_SignOut_Route = createRoute({
-  path: "/auth/sign-out",
+  path: "/old-auth/sign-out",
   method: "post",
-  tags: moduleTags.auth,
+  tags: moduleTags.oldAuth,
   summary: "Sign out user",
   description: "Sign out the current user and invalidate session",
   responses: {
@@ -429,9 +429,9 @@ export const POST_SignOut_Handler: RouteHandler<
 
 // ============ FORGOT PASSWORD ROUTE ============
 export const POST_ForgotPassword_Route = createRoute({
-  path: "/auth/forgot-password",
+  path: "/old-auth/forgot-password",
   method: "post",
-  tags: moduleTags.auth,
+  tags: moduleTags.oldAuth,
   summary: "Request password reset",
   description: "Send password reset email to user",
   request: {
@@ -509,9 +509,9 @@ export const POST_ForgotPassword_Handler: RouteHandler<
 
 // ============ RESET PASSWORD ROUTE ============
 export const POST_ResetPassword_Route = createRoute({
-  path: "/auth/reset-password",
+  path: "/old-auth/reset-password",
   method: "post",
-  tags: moduleTags.auth,
+  tags: moduleTags.oldAuth,
   summary: "Reset password",
   description: "Reset user password with reset token",
   request: {
@@ -605,9 +605,9 @@ export const POST_ResetPassword_Handler: RouteHandler<
 
 // ============ VERIFY EMAIL ROUTE ============
 export const POST_VerifyEmail_Route = createRoute({
-  path: "/auth/verify-email",
+  path: "/old-auth/verify-email",
   method: "post",
-  tags: moduleTags.auth,
+  tags: moduleTags.oldAuth,
   summary: "Verify email address",
   description: "Verify user email with verification token",
   request: {
@@ -713,9 +713,9 @@ export const POST_VerifyEmail_Handler: RouteHandler<
 
 // ============ RESEND VERIFICATION EMAIL ROUTE ============
 export const POST_ResendVerification_Route = createRoute({
-  path: "/auth/resend-verification",
+  path: "/old-auth/resend-verification",
   method: "post",
-  tags: moduleTags.auth,
+  tags: moduleTags.oldAuth,
   summary: "Resend verification email",
   description: "Resend email verification link to user",
   request: {

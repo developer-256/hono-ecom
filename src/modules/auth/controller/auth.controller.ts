@@ -2,6 +2,10 @@ import { createRouter } from "@/lib/core/create-router";
 import { authRoutes } from "../routes/auth.auth.route";
 import { sessionRoutes } from "../routes/session.auth.route";
 import { adminRoutes } from "../routes/admin.auth.route";
+import {
+  POST_SignUp_Handler,
+  POST_SignUp_Route,
+} from "../routes/signup.auth.route";
 
 /**
  * Auth Controller
@@ -13,6 +17,7 @@ import { adminRoutes } from "../routes/admin.auth.route";
  */
 export const authController = createRouter();
 export const newAuthController = createRouter();
+newAuthController.openapi(POST_SignUp_Route, POST_SignUp_Handler);
 
 /**
  * Register a route with its middleware

@@ -22,7 +22,10 @@ import { APISchema } from "./lib/schemas/api-schemas";
 import { HONO_RESPONSE } from "./lib/utils";
 import { mailerController } from "./modules/mailer/controller/mailer.controller";
 import { userController } from "./modules/user/controller/user.controller";
-import { authController } from "./modules/auth/controller/auth.controller";
+import {
+  authController,
+  newAuthController,
+} from "./modules/auth/controller/auth.controller";
 import { auth } from "./modules/auth/service/auth";
 
 const createApp = () => {
@@ -77,7 +80,12 @@ app.openapi(
   }
 );
 
-const controllers = [mailerController, userController, authController];
+const controllers = [
+  newAuthController,
+  mailerController,
+  userController,
+  authController,
+];
 
 for (const controller of controllers) {
   app.route("/", controller);
